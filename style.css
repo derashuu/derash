@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Noto+Sans+Ethiopic:wght@400;500;600;700&display=swap");
 
 :root {
   --bg: #ffffff;
@@ -22,7 +22,7 @@ body {
   padding: 0;
   background: var(--bg);
   color: var(--ink);
-  font-family: "Inter", sans-serif;
+  font-family: "Inter", "Noto Sans Ethiopic", sans-serif;
   min-height: 100vh;
   -webkit-text-size-adjust: 100%;
 }
@@ -235,6 +235,176 @@ textarea:focus-visible {
   font-size: 11px;
   color: var(--smoke);
   margin-top: 4px;
+}
+
+/* ---------- avatars ---------- */
+
+.avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 14px;
+  color: #fff;
+  flex-shrink: 0;
+  letter-spacing: 0.02em;
+}
+
+.avatar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.avatar-stack {
+  display: flex;
+}
+.avatar-stack .avatar {
+  width: 28px;
+  height: 28px;
+  font-size: 11px;
+  margin-left: -8px;
+  border: 2px solid var(--surface);
+}
+.avatar-stack .avatar:first-child {
+  margin-left: 0;
+}
+.avatar-more {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--surface-raised);
+  border: 2px solid var(--surface);
+  color: var(--smoke);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: -8px;
+}
+
+.fighter-portrait {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 22px;
+  color: #fff;
+  margin-bottom: 8px;
+  flex-shrink: 0;
+}
+
+/* ---------- funding progress ---------- */
+
+.progress-wrap {
+  padding: 0 20px 12px;
+}
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  color: var(--smoke);
+  margin-bottom: 6px;
+}
+.progress-label b {
+  color: var(--ink);
+}
+.progress-track {
+  height: 8px;
+  background: var(--surface-raised);
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), var(--gold-bright));
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+/* ---------- open / filled tab switch ---------- */
+
+.tab-switch {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid var(--line);
+}
+.tab-btn {
+  background: none;
+  border: none;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--smoke);
+  padding: 10px 4px 12px;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
+}
+.tab-btn.active {
+  color: var(--ink);
+  border-bottom-color: var(--gold);
+}
+.tab-count {
+  display: inline-block;
+  background: var(--surface-raised);
+  color: var(--smoke);
+  font-size: 11px;
+  border-radius: 999px;
+  padding: 1px 8px;
+  margin-left: 4px;
+}
+.tab-btn.active .tab-count {
+  background: var(--gold);
+  color: var(--on-accent);
+}
+.tab-panel {
+  display: none;
+}
+.tab-panel.active {
+  display: block;
+}
+
+/* ---------- how it works strip ---------- */
+
+.how-it-works {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 32px;
+}
+.how-step {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 14px 14px 16px;
+}
+.how-step .num {
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 26px;
+  color: var(--gold-bright);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.how-step .txt {
+  font-size: 12.5px;
+  color: var(--smoke);
+  line-height: 1.35;
+}
+@media (max-width: 640px) {
+  .how-it-works {
+    grid-template-columns: 1fr;
+  }
 }
 
 .vs-seam {
@@ -499,7 +669,7 @@ textarea:focus-visible {
   border-radius: 4px;
   padding: 10px 12px;
   color: var(--ink);
-  font-family: "Inter", sans-serif;
+  font-family: "Inter", "Noto Sans Ethiopic", sans-serif;
   font-size: 16px;
 }
 

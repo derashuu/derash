@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="am">
   <head>
     <meta charset="UTF-8" />
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1"
     />
-    <title>ETFC 002 — Corner (Admin)</title>
+    <title>ETFC 002 — ኮርነር (አድሚን)</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
@@ -14,12 +14,12 @@
     <div class="gate" id="gate">
       <div class="gate-box">
         <h1 class="display">THE CORNER</h1>
-        <p>Admin access only. Enter the passcode.</p>
+        <p>ለአድሚን ብቻ። የይለፍ ቃል አስገባ።</p>
         <div class="field">
-          <input type="password" id="passInput" placeholder="Passcode" />
+          <input type="password" id="passInput" placeholder="የይለፍ ቃል" />
         </div>
         <button class="btn btn-primary" id="enterBtn" style="width: 100%">
-          Enter
+          ግባ
         </button>
         <div class="gate-error" id="gateError"></div>
       </div>
@@ -28,15 +28,13 @@
     <!-- ADMIN SHELL -->
     <div class="admin-shell" id="adminShell">
       <header class="marquee">
-        <div class="event-tag">ETFC 002 &middot; ADMIN</div>
+        <div class="event-tag">ETFC 002 &middot; አድሚን</div>
         <h1>THE <span>CORNER</span></h1>
-        <p>
-          Review payment screenshots, approve or reject backers, settle results.
-        </p>
+        <p>የክፍያ ስክሪንሾቶችን ገምግም፣ ደጋፊዎችን አጽድቅ ወይም ውድቅ አድርግ፣ ውጤት አስመዝግብ።</p>
       </header>
 
       <main class="shell">
-        <p class="section-label">Fighter Roster</p>
+        <p class="section-label">የተጫዋቾች ዝርዝር</p>
         <div id="fighterChips" style="margin-bottom: 12px"></div>
         <form
           id="addFighterForm"
@@ -45,7 +43,7 @@
           <input
             type="text"
             id="newFighterName"
-            placeholder="Add a fighter name"
+            placeholder="የተጫዋች ስም ጨምር"
             style="
               flex: 1;
               background: var(--surface);
@@ -55,10 +53,10 @@
               color: var(--bone);
             "
           />
-          <button type="submit" class="btn btn-ghost">Add</button>
+          <button type="submit" class="btn btn-ghost">ጨምር</button>
         </form>
 
-        <p class="section-label">All Bets</p>
+        <p class="section-label">ሁሉም ውርርዶች</p>
         <div id="bouts"></div>
       </main>
     </div>
@@ -82,7 +80,7 @@
           adminShell.classList.add("open");
           boot();
         } else {
-          gateError.textContent = "Wrong passcode.";
+          gateError.textContent = "የተሳሳተ የይለፍ ቃል።";
         }
       }
 
@@ -138,7 +136,7 @@
             (snap) => {
               const el = document.getElementById("fighterChips");
               if (snap.empty) {
-                el.innerHTML = `<div class="empty-state">No fighters yet. Add one below.</div>`;
+                el.innerHTML = `<div class="empty-state">እስካሁን ተጫዋች የለም። ከታች ጨምር።</div>`;
                 return;
               }
               el.innerHTML = snap.docs
@@ -161,7 +159,7 @@
               console.error("listenFighters failed:", err);
               document.getElementById(
                 "fighterChips"
-              ).innerHTML = `<div class="error-state">Couldn't load fighters — check the console (F12) for the Firestore error.</div>`;
+              ).innerHTML = `<div class="error-state">ተጫዋቾችን መጫን አልተቻለም — ኮንሶልውን (F12) አረጋግጥ።</div>`;
             }
           );
       }
@@ -178,15 +176,15 @@
         } <span class="amt">${money(c.amount)}</span></div>
         <a class="screenshot-link" href="${
           c.screenshotUrl
-        }" target="_blank" rel="noopener">View payment screenshot &rarr;</a>
+        }" target="_blank" rel="noopener">የክፍያ ስክሪንሾት ይመልከቱ &rarr;</a>
       </div>
       <div style="display:flex; align-items:center; gap:8px;">
         <span class="pill ${c.status}">${c.status}</span>
         ${
           c.status === "pending"
             ? `
-          <button class="btn-approve" data-bet="${bet.id}" data-cid="${c.id}" data-action="approve">Approve</button>
-          <button class="btn-reject" data-bet="${bet.id}" data-cid="${c.id}" data-action="reject">Reject</button>
+          <button class="btn-approve" data-bet="${bet.id}" data-cid="${c.id}" data-action="approve">አጽድቅ</button>
+          <button class="btn-reject" data-bet="${bet.id}" data-cid="${c.id}" data-action="reject">ውድቅ አድርግ</button>
         `
             : ""
         }
@@ -197,33 +195,27 @@
 
       function renderChallengersAdmin(bet) {
         if (!bet.challengers || bet.challengers.length === 0) {
-          return `<div class="empty-state" style="margin:0 20px 16px;">No backers yet.</div>`;
+          return `<div class="empty-state" style="margin:0 20px 16px;">እስካሁን ደጋፊ የለም።</div>`;
         }
-        const c = bet.challengers[0];
-        return `<div class="challenger-list">${renderChallengerAdminRow(
-          bet,
-          c
-        )}</div>`;
+        const rows = bet.challengers
+          .map((c) => renderChallengerAdminRow(bet, c))
+          .join("");
+        return `<div class="challenger-list">${rows}</div>`;
       }
 
       function renderResultRow(bet) {
         const options = [
-          `<option value="">No result yet</option>`,
-          `<option value="${escapeHtml(bet.fighterName)}">${escapeHtml(
-            bet.fighterName
-          )} (creator's pick)</option>`,
+          `<option value="">ገና ውጤት የለም</option>`,
+          `<option value="${escapeHtml(bet.fighterName)}"${
+            bet.result === bet.fighterName ? " selected" : ""
+          }>${escapeHtml(bet.fighterName)} (creator's pick) ያሸንፋል</option>`,
+          `<option value="OPPONENT"${
+            bet.result === "OPPONENT" ? " selected" : ""
+          }>The other side wins (all backers get paid)</option>`,
         ];
-        if (bet.challengers && bet.challengers.length > 0) {
-          const c = bet.challengers[0];
-          options.push(
-            `<option value="${escapeHtml(c.name)}">${escapeHtml(
-              c.name
-            )} (backer)</option>`
-          );
-        }
         return `
     <div class="result-row">
-      <span style="font-size:12px; color:var(--smoke); text-transform:uppercase; letter-spacing:0.08em;">Settle:</span>
+      <span style="font-size:12px; color:var(--smoke); text-transform:uppercase; letter-spacing:0.08em;">ውጤት አስመዝግብ፦</span>
       <select data-bet="${bet.id}" data-action="settle">${options.join(
           ""
         )}</select>
@@ -234,7 +226,7 @@
       function renderBouts(bets) {
         const boutsEl = document.getElementById("bouts");
         if (bets.length === 0) {
-          boutsEl.innerHTML = `<div class="empty-state">No bets on the board yet.</div>`;
+          boutsEl.innerHTML = `<div class="empty-state">እስካሁን ውርርድ የለም።</div>`;
           return;
         }
         boutsEl.innerHTML = bets
@@ -246,15 +238,19 @@
         <div class="corner red">
           <p class="who">${escapeHtml(bet.creatorName)}${
               bet.creatorPhone ? " · " + escapeHtml(bet.creatorPhone) : ""
-            } backs</p>
+            } የሚደግፈው</p>
           <p class="fighter">${escapeHtml(bet.fighterName)}</p>
           <p class="stake">${money(bet.amount)}</p>
         </div>
         <div class="vs-seam">VS</div>
         <div class="corner blue">
-          <p class="who">status</p>
+          <p class="who">ውጤት</p>
           <p class="fighter" style="font-size:18px;">${
-            bet.status === "settled" ? bet.result || "VOID" : "OPEN"
+            bet.status === "settled"
+              ? bet.result === "OPPONENT"
+                ? "ተቃራኒ ወገን"
+                : bet.result || "ውጤት የለም"
+              : "OPEN"
           }</p>
         </div>
       </div>
@@ -282,7 +278,9 @@
                 .collection("bets")
                 .doc(bet.id)
                 .update({ challengers: updated });
-              showToast(`Backer ${newStatus}.`);
+              showToast(
+                `ደጋፊው ${newStatus === "approved" ? "ጸድቋል" : "ውድቅ ተደርጓል"}።`
+              );
             });
           });
 
@@ -297,7 +295,7 @@
                 status: value ? "settled" : "open",
                 result: value || null,
               });
-            showToast(value ? "Bet settled." : "Bet reopened.");
+            showToast(value ? "ውርርዱ ተጠናቋል።" : "ውርርዱ እንደገና ተከፍቷል።");
           });
         });
       }
@@ -314,7 +312,7 @@
               console.error("listenBouts failed:", err);
               document.getElementById(
                 "bouts"
-              ).innerHTML = `<div class="error-state">Couldn't load bets — check the console (F12) for the Firestore error.</div>`;
+              ).innerHTML = `<div class="error-state">ውርርዶቹን መጫን አልተቻለም — ኮንሶልውን (F12) አረጋግጥ።</div>`;
             }
           );
       }

@@ -1,39 +1,62 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="am">
   <head>
     <meta charset="UTF-8" />
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1"
     />
-    <title>ETFC 002 — Adwa Fight Night Book</title>
+    <title>ETFC 002 — የውርርድ ሰሌዳ</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <header class="marquee">
-      <div class="event-tag">ETFC 002 &middot; ADWA FIGHT NIGHT</div>
-      <h1>WHO YOU <span>GOT?</span></h1>
+      <div class="event-tag">ETFC 002 &middot; አድዋ ፋይት ናይት</div>
+      <h1>ማንን <span>ትደግፋለህ?</span></h1>
       <p>
-        Back your fighter. Call out a bettor. Everything below is settled by the
-        corner (admin) once payment is confirmed.
+        የምታምንበትን ተጫዋች ለይ እና ውርርድ ለጥፍ። ሌሎች ደግሞ ተቃራኒውን ወገን ይሸፍናሉ። ክፍያው ከተረጋገጠ በኋላ
+        አድሚኑ ፍልሚያው እንዳለቀ ውጤቱን አረጋግጦ ይከፍላል።
       </p>
     </header>
 
     <main class="shell">
-      <p class="section-label">Open Bets — No Backer Yet</p>
-      <div id="boutsOpen"></div>
+      <div class="how-it-works">
+        <div class="how-step">
+          <div class="num">1</div>
+          <div class="txt"><b>ውርርድ ለጥፍ</b> — የምትደግፈውን ተጫዋች እና መጠኑን ግለጽ።</div>
+        </div>
+        <div class="how-step">
+          <div class="num">2</div>
+          <div class="txt">
+            <b>ሌሎች ተቃራኒውን ይሸፍናሉ</b> — አንድ ሰው ወይም ብዙ ሰዎች፣ ሙሉ ገንዘቡ እስኪሸፈን ድረስ።
+          </div>
+        </div>
+        <div class="how-step">
+          <div class="num">3</div>
+          <div class="txt">
+            <b>አድሚኑ ያጠናቅቀዋል</b> — ፍልሚያው ካለቀ በኋላ አድሚኑ አረጋግጦ አሸናፊውን ይከፍላል።
+          </div>
+        </div>
+      </div>
 
-      <p class="section-label" style="margin-top: 40px">
-        Already Backed / Settled
-      </p>
-      <div id="boutsFilled"></div>
+      <div class="tab-switch">
+        <button class="tab-btn active" data-tab="open">
+          🟡 ተጋጣሚ በመጠበቅ ላይ <span class="tab-count" id="openCount"></span>
+        </button>
+        <button class="tab-btn" data-tab="filled">
+          ✅ የተሟሉ / ያለቁ <span class="tab-count" id="filledCount"></span>
+        </button>
+      </div>
+
+      <div id="boutsOpen" class="tab-panel active"></div>
+      <div id="boutsFilled" class="tab-panel"></div>
     </main>
 
     <button
       class="fab"
       id="openCreate"
-      title="Create a new bet"
-      aria-label="Create a new bet"
+      title="አዲስ ውርርድ ፍጠር"
+      aria-label="አዲስ ውርርድ ፍጠር"
     >
       +
     </button>
@@ -42,35 +65,27 @@
     <div class="modal-backdrop" id="createBackdrop">
       <div class="modal" style="position: relative">
         <button class="close-x" data-close="createBackdrop">&times;</button>
-        <h2>Call Your Shot</h2>
-        <p class="sub">
-          Say who you're backing and put your stake on the board.
-        </p>
+        <h2>ውርርድህን አስቀምጥ</h2>
+        <p class="sub">የምትደግፈውን ተጫዋች ግለጽ እና ገንዘብህን በሰሌዳው ላይ አስቀምጥ።</p>
         <form id="createForm">
           <div class="field">
-            <label for="cName">Your name</label>
-            <input type="text" id="cName" required placeholder="e.g. Abel" />
+            <label for="cName">ስምህ</label>
+            <input type="text" id="cName" required placeholder="ለምሳሌ: አበል" />
           </div>
           <div class="field">
-            <label for="cPhone">Your phone number</label>
+            <label for="cPhone">ስልክ ቁጥርህ</label>
             <input type="tel" id="cPhone" required placeholder="09XXXXXXXX" />
           </div>
           <div class="field">
-            <label for="cFighter">Fighter you're backing</label>
+            <label for="cFighter">የምትደግፈው ተጫዋች</label>
             <select id="cFighter" required></select>
           </div>
           <div class="field">
-            <label for="cFighterNew"
-              >Fighter not listed? Type a name instead</label
-            >
-            <input
-              type="text"
-              id="cFighterNew"
-              placeholder="Leave blank to use the dropdown"
-            />
+            <label for="cFighterNew">ስሙ በዝርዝሩ ውስጥ ከሌለ እዚህ ጻፍ</label>
+            <input type="text" id="cFighterNew" placeholder="ካልፈለግክ ባዶ ተወው" />
           </div>
           <div class="field">
-            <label for="cAmount">Stake (ETB)</label>
+            <label for="cAmount">የውርርድ መጠን (ብር)</label>
             <input
               type="number"
               id="cAmount"
@@ -80,11 +95,8 @@
             />
           </div>
           <div class="field">
-            <label for="cNote">Trash talk (optional)</label>
-            <textarea
-              id="cNote"
-              placeholder="He's not making it out of round 2."
-            ></textarea>
+            <label for="cNote">አስተያየት (አማራጭ)</label>
+            <textarea id="cNote" placeholder="እስከ 2ኛ ዙር አያልፍም።"></textarea>
           </div>
           <div class="modal-actions">
             <button
@@ -92,9 +104,9 @@
               class="btn btn-ghost"
               data-close="createBackdrop"
             >
-              Cancel
+              ሰርዝ
             </button>
-            <button type="submit" class="btn btn-primary">Post Bet</button>
+            <button type="submit" class="btn btn-primary">ውርርድ አስገባ</button>
           </div>
         </form>
       </div>
@@ -104,28 +116,28 @@
     <div class="modal-backdrop" id="payBackdrop">
       <div class="modal" style="position: relative">
         <button class="close-x" data-close="payBackdrop">&times;</button>
-        <h2>Cover The Bet</h2>
+        <h2>ውርርዱን ሸፍን</h2>
         <p class="sub" id="payContext"></p>
         <div class="telebirr-box">
-          Send the stake via Telebirr to:
+          ገንዘቡን በቴሌብር ወደዚህ ላክ፦
           <div class="num" id="telebirrNum"></div>
-          <div>Name on account: <strong id="telebirrName"></strong></div>
+          <div>የስም ባለቤት፦ <strong id="telebirrName"></strong></div>
         </div>
         <form id="payForm">
           <div class="field">
-            <label for="pName">Your name</label>
+            <label for="pName">ስምህ</label>
             <input type="text" id="pName" required />
           </div>
           <div class="field">
-            <label for="pPhone">Your phone number</label>
+            <label for="pPhone">ስልክ ቁጥርህ</label>
             <input type="tel" id="pPhone" required placeholder="09XXXXXXXX" />
           </div>
           <div class="field">
-            <label for="pAmount">Amount you're sending (ETB)</label>
+            <label for="pAmount">የላክከው መጠን (ብር)</label>
             <input type="number" id="pAmount" required min="1" />
           </div>
           <div class="field">
-            <label for="pShot">Screenshot of the Telebirr payment</label>
+            <label for="pShot">የቴሌብር ክፍያ ስክሪንሾት</label>
             <input type="file" id="pShot" accept="image/*" required />
           </div>
           <div class="modal-actions">
@@ -134,10 +146,10 @@
               class="btn btn-ghost"
               data-close="payBackdrop"
             >
-              Cancel
+              ሰርዝ
             </button>
             <button type="submit" class="btn btn-primary" id="paySubmitBtn">
-              Submit for Review
+              ለግምገማ አስገባ
             </button>
           </div>
         </form>
@@ -169,6 +181,40 @@
       document.querySelectorAll("[data-close]").forEach((btn) => {
         btn.addEventListener("click", () => closeModal(btn.dataset.close));
       });
+
+      // ---------- avatar helper ----------
+      // Deterministic color per name + initials, so every person gets a
+      // consistent little "portrait" without needing real photos.
+      const AVATAR_COLORS = [
+        "#a9790b",
+        "#7a4f9e",
+        "#2f7a5c",
+        "#b8452f",
+        "#2f5f9e",
+        "#9e2f5f",
+        "#5c7a2f",
+        "#9e6b2f",
+      ];
+      function avatarColor(name) {
+        const str = name || "?";
+        let hash = 0;
+        for (let i = 0; i < str.length; i++)
+          hash = str.charCodeAt(i) + ((hash << 5) - hash);
+        return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+      }
+      function initials(name) {
+        if (!name) return "?";
+        const parts = name.trim().split(/\s+/);
+        return parts.length === 1
+          ? parts[0].slice(0, 2).toUpperCase()
+          : (parts[0][0] + parts[1][0]).toUpperCase();
+      }
+      function avatarHtml(name, size) {
+        const cls = size === "sm" ? "avatar" : "avatar";
+        return `<div class="${cls}" style="background:${avatarColor(name)};${
+          size === "portrait" ? "" : ""
+        }">${escapeHtml(initials(name))}</div>`;
+      }
 
       function money(n) {
         return Number(n).toLocaleString("en-US") + " ETB";
@@ -226,9 +272,7 @@
           }
         } catch (err) {
           console.error("ensureFightersSeeded failed:", err);
-          showToast(
-            "Could not load fighters — check Firestore rules (see console)."
-          );
+          showToast("ተጫዋቾችን መጫን አልተቻለም — Firestore ደንቦችን ኮንሶል ላይ (F12) አረጋግጥ።");
         }
       }
 
@@ -249,7 +293,7 @@
             (err) => {
               console.error("listenFighters failed:", err);
               showToast(
-                "Could not load fighters — check Firestore rules (see console)."
+                "ተጫዋቾችን መጫን አልተቻለም — Firestore ደንቦችን ኮንሶል ላይ (F12) አረጋግጥ።"
               );
             }
           );
@@ -368,28 +412,50 @@
 
       // ---------- render bouts ----------
       function statusLabel(bet) {
-        if (bet.status === "settled")
-          return `SETTLED — ${bet.result || "no result"}`;
-        return "OPEN";
+        if (bet.status === "settled") {
+          const label = bet.result === "OPPONENT" ? "ተቃራኒው ወገን" : bet.result;
+          return `ተጠናቋል — አሸናፊ፦ ${label || "ውጤት የለም"}`;
+        }
+        return "ክፍት";
       }
 
-      function renderChallengers(bet, betId) {
+      function renderChallengers(bet) {
         if (!bet.challengers || bet.challengers.length === 0) {
-          return `<div class="empty-state" style="padding:16px;">No one has covered this bet yet — waiting on a counterparty.</div>`;
+          return `<div class="empty-state" style="padding:16px;">እስካሁን ደጋፊ የለም — ገንዘብ የሚሸፍን ሰው በመጠበቅ ላይ።</div>`;
         }
-        const c = bet.challengers[0];
-        return `
-          <div class="challenger-list">
+        const rows = bet.challengers
+          .map(
+            (c) => `
             <div class="challenger-row">
-              <span class="name">${escapeHtml(
-                maskName(c.name)
-              )} <span class="contact">${escapeHtml(
-          maskPhone(c.phone)
-        )}</span> <span class="amt">${money(c.amount)}</span></span>
-              <span class="pill ${c.status}">${c.status}</span>
-            </div>
-          </div>
-        `;
+              <div class="avatar-row">
+                ${avatarHtml(c.name)}
+                <span class="name">${escapeHtml(
+                  maskName(c.name)
+                )} <span class="contact">${escapeHtml(
+              maskPhone(c.phone)
+            )}</span></span>
+              </div>
+              <span style="display:flex; align-items:center; gap:8px;">
+                <span class="amt">${money(c.amount)}</span>
+                <span class="pill ${c.status}">${c.status}</span>
+              </span>
+            </div>`
+          )
+          .join("");
+        return `<div class="challenger-list">${rows}</div>`;
+      }
+
+      function coveredAmount(bet) {
+        if (!bet.challengers) return 0;
+        return bet.challengers
+          .filter((c) => c.status !== "rejected")
+          .reduce((sum, c) => sum + Number(c.amount || 0), 0);
+      }
+      function remainingAmount(bet) {
+        return Math.max(0, Number(bet.amount) - coveredAmount(bet));
+      }
+      function isFullyCovered(bet) {
+        return remainingAmount(bet) <= 0;
       }
 
       function escapeHtml(str) {
@@ -400,22 +466,35 @@
 
       let currentBoutForPay = null;
 
-      // 1v1 model: a bet is "open" (no backer yet) until exactly one
-      // person backs it, at which point it's filled — no second backer
-      // can join the same bet.
       function hasBacker(bet) {
         return bet.challengers && bet.challengers.length > 0;
       }
 
       function renderBoutCard(bet, i) {
+        const covered = coveredAmount(bet);
+        const remaining = remainingAmount(bet);
+        const pct = Math.min(100, Math.round((covered / bet.amount) * 100));
+        const backersCount = bet.challengers ? bet.challengers.length : 0;
+
+        const avatarStack =
+          backersCount === 0
+            ? `<span style="color:var(--smoke); font-size:12px;">open slot</span>`
+            : `<div class="avatar-stack">${bet.challengers
+                .slice(0, 3)
+                .map((c) => avatarHtml(c.name))
+                .join("")}${
+                backersCount > 3
+                  ? `<div class="avatar-more">+${backersCount - 3}</div>`
+                  : ""
+              }</div>`;
+
         return `
     <div class="bout">
-      <div class="bout-number">BOUT ${String(i + 1).padStart(2, "0")}</div>
+      <div class="bout-number">ፍልሚያ ${String(i + 1).padStart(2, "0")}</div>
       <div class="bout-main">
         <div class="corner red">
-          <p class="who">${escapeHtml(
-            maskName(bet.creatorName)
-          )} is rooting for</p>
+          ${avatarHtml(bet.creatorName, "portrait")}
+          <p class="who">${escapeHtml(maskName(bet.creatorName))} የሚደግፈው</p>
           <p class="fighter">${escapeHtml(bet.fighterName)}</p>
           <p class="stake">${money(bet.amount)}</p>
           ${
@@ -428,27 +507,39 @@
         </div>
         <div class="vs-seam">VS</div>
         <div class="corner blue">
-          <p class="who">${
-            hasBacker(bet)
-              ? escapeHtml(maskName(bet.challengers[0].name)) + " accepted"
-              : "open slot"
-          }</p>
-          <p class="fighter">${hasBacker(bet) ? "YOU?" : "YOU?"}</p>
+          <p class="who">በ<b>${escapeHtml(bet.fighterName)}</b> ላይ የተወራረደ</p>
+          <p class="backer" style="margin-top:0;">${backersCount} ደጋፊ${
+          backersCount === 1 ? "" : "ዎች"
+        } እስካሁን</p>
+          ${avatarStack}
         </div>
       </div>
       ${
         bet.note ? `<div class="bout-note">"${escapeHtml(bet.note)}"</div>` : ""
       }
-      ${renderChallengers(bet, bet.id)}
+      <div class="progress-wrap">
+        <div class="progress-label">
+          <span>የተሸፈነው <b>${money(covered)}</b> ከ${money(bet.amount)}</span>
+          <span>${pct}%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" style="width:${pct}%"></div>
+        </div>
+      </div>
+      ${renderChallengers(bet)}
       <div class="bout-footer">
         <span class="status-badge ${
           bet.status === "open" ? "open" : "settled"
         }">${statusLabel(bet)}</span>
         ${
-          bet.status === "open" && !hasBacker(bet)
-            ? `<button class="btn btn-primary" data-bet="${bet.id}" data-action="back">Bet Against Him</button>`
-            : bet.status === "open" && hasBacker(bet)
-            ? `<span class="status-badge filled">FILLED — 1v1, no more backers</span>`
+          bet.status === "open" && !isFullyCovered(bet)
+            ? `<button class="btn btn-primary" data-bet="${
+                bet.id
+              }" data-action="back">${escapeHtml(
+                bet.fighterName
+              )}ን ተቃወም — ${money(remaining)} ይቀራል</button>`
+            : bet.status === "open" && isFullyCovered(bet)
+            ? `<span class="status-badge filled">ሙሉ በሙሉ ተሸፍኗል</span>`
             : ""
         }
       </div>
@@ -457,23 +548,27 @@
       }
 
       function renderBouts(bets) {
-        // Open: no backer yet, still 1v1-available. Filled/settled: already
-        // has its one backer, or the result has been recorded.
+        // Waiting: still needs more backing to cover the full stake.
+        // Matched/Settled: fully covered by one or more backers, or the
+        // result has already been recorded.
         const openBets = bets.filter(
-          (b) => !hasBacker(b) && b.status === "open"
+          (b) => b.status === "open" && !isFullyCovered(b)
         );
         const filledBets = bets.filter(
-          (b) => hasBacker(b) || b.status !== "open"
+          (b) => b.status !== "open" || isFullyCovered(b)
         );
+
+        document.getElementById("openCount").textContent = openBets.length;
+        document.getElementById("filledCount").textContent = filledBets.length;
 
         boutsOpenEl.innerHTML =
           openBets.length === 0
-            ? `<div class="empty-state">No open bets right now. Tap the + button and put one up.</div>`
+            ? `<div class="empty-state">ምንም ክፍት ውርርድ የለም። ከታች ያለውን + ተጭነህ ውርርድ ጨምር።</div>`
             : openBets.map((bet, i) => renderBoutCard(bet, i)).join("");
 
         boutsFilledEl.innerHTML =
           filledBets.length === 0
-            ? `<div class="empty-state">Nothing backed or settled yet.</div>`
+            ? `<div class="empty-state">እስካሁን የተሟላ ወይም ያለቀ ውርርድ የለም።</div>`
             : filledBets.map((bet, i) => renderBoutCard(bet, i)).join("");
 
         [boutsOpenEl, boutsFilledEl].forEach((container) => {
@@ -481,12 +576,15 @@
             btn.addEventListener("click", () => {
               const bet = bets.find((b) => b.id === btn.dataset.bet);
               currentBoutForPay = bet;
-              document.getElementById(
-                "payContext"
-              ).textContent = `Covering ${maskName(bet.creatorName)}'s bet on ${
-                bet.fighterName
-              } — suggested stake ${money(bet.amount)}.`;
-              document.getElementById("pAmount").value = bet.amount;
+              const remaining = remainingAmount(bet);
+              document.getElementById("payContext").textContent = `${maskName(
+                bet.creatorName
+              )} በ${bet.fighterName} ላይ የተወራረደውን ትቃወማለህ — ${money(
+                remaining
+              )} ገና ያስፈልጋል። ሙሉውን ወይም ከፊሉን ልትሸፍን ትችላለህ።`;
+              const amountInput = document.getElementById("pAmount");
+              amountInput.value = remaining;
+              amountInput.max = remaining;
               document.getElementById("telebirrNum").textContent =
                 TELEBIRR_NUMBER;
               document.getElementById("telebirrName").textContent =
@@ -507,7 +605,7 @@
             },
             (err) => {
               console.error("listenBouts failed:", err);
-              const msg = `<div class="error-state">Couldn't load bets. Open the browser console (F12) to see the Firestore error — most likely your database rules need to allow read/write, or Firestore hasn't been created yet in the Firebase console.</div>`;
+              const msg = `<div class="error-state">ውርርዶቹን መጫን አልተቻለም። ኮንሶልውን (F12) ተመልከት — አብዛኛውን ጊዜ የFirestore ደንቦች read/write መፍቀድ አለባቸው፣ ወይም Firestore ገና አልተፈጠረም።</div>`;
               boutsOpenEl.innerHTML = msg;
               boutsFilledEl.innerHTML = "";
             }
@@ -551,7 +649,7 @@
 
           e.target.reset();
           closeModal("createBackdrop");
-          showToast("Bet posted to the board.");
+          showToast("ውርርድህ በሰሌዳው ላይ ተለጥፏል።");
         });
 
       // ---------- upload screenshot to ImgBB ----------
@@ -584,7 +682,13 @@
           const file = document.getElementById("pShot").files[0];
           if (!currentBoutForPay || !file) return;
 
-          submitBtn.textContent = "Uploading...";
+          const remaining = remainingAmount(currentBoutForPay);
+          if (amount > remaining) {
+            showToast(`ገና ${money(remaining)} ብቻ ነው የሚያስፈልገው — መጠኑን ቀንስ።`);
+            return;
+          }
+
+          submitBtn.textContent = "በመላክ ላይ...";
           submitBtn.disabled = true;
 
           try {
@@ -599,26 +703,47 @@
               status: "pending",
             };
 
+            // Append this backer to the existing list instead of
+            // overwriting it — a bet can have several backers pooling
+            // together to cover the full stake.
+            const existing = currentBoutForPay.challengers || [];
+
             await db
               .collection("bets")
               .doc(currentBoutForPay.id)
               .update({
-                challengers: [challenger],
+                challengers: [...existing, challenger],
               });
 
             e.target.reset();
             closeModal("payBackdrop");
-            showToast(
-              "Submitted — waiting for the admin to confirm your payment."
-            );
+            showToast("ገብቷል — አድሚኑ ክፍያህን እስኪያረጋግጥ ጠብቅ።");
           } catch (err) {
             console.error(err);
-            showToast("Something went wrong. Try again.");
+            showToast("የሆነ ችግር ተፈጥሯል። እንደገና ሞክር።");
           } finally {
-            submitBtn.textContent = "Submit for Review";
+            submitBtn.textContent = "ለግምገማ አስገባ";
             submitBtn.disabled = false;
           }
         });
+
+      // ---------- open/filled tab switch ----------
+      document.querySelectorAll(".tab-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document
+            .querySelectorAll(".tab-btn")
+            .forEach((b) => b.classList.remove("active"));
+          document
+            .querySelectorAll(".tab-panel")
+            .forEach((p) => p.classList.remove("active"));
+          btn.classList.add("active");
+          document
+            .getElementById(
+              btn.dataset.tab === "open" ? "boutsOpen" : "boutsFilled"
+            )
+            .classList.add("active");
+        });
+      });
 
       // ---------- boot ----------
       ensureFightersSeeded().then(listenFighters);
