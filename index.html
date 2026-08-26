@@ -1,181 +1,260 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>ETFC 02 — Underground Book</title>
-<link rel="stylesheet" href="style.css" />
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ETFC 02 — Underground Book</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="marquee">
+      <div class="event-tag">ETFC 02 &middot; FIGHT NIGHT BOOK</div>
+      <h1>WHO YOU <span>GOT?</span></h1>
+      <p>
+        Back your fighter. Call out a bettor. Everything below is settled by the
+        corner (admin) once payment is confirmed.
+      </p>
+    </header>
 
-<header class="marquee">
-  <div class="event-tag">ETFC 02 &middot; FIGHT NIGHT BOOK</div>
-  <h1>WHO YOU <span>GOT?</span></h1>
-  <p>Back your fighter. Call out a bettor. Everything below is settled by the corner (admin) once payment is confirmed.</p>
-</header>
+    <main class="shell">
+      <p class="section-label">Open Bouts</p>
+      <div id="bouts"></div>
+    </main>
 
-<main class="shell">
-  <p class="section-label">Open Bouts</p>
-  <div id="bouts"></div>
-</main>
+    <button
+      class="fab"
+      id="openCreate"
+      title="Create a new bet"
+      aria-label="Create a new bet"
+    >
+      +
+    </button>
 
-<button class="fab" id="openCreate" title="Create a new bet" aria-label="Create a new bet">+</button>
-
-<!-- CREATE BET MODAL -->
-<div class="modal-backdrop" id="createBackdrop">
-  <div class="modal" style="position:relative;">
-    <button class="close-x" data-close="createBackdrop">&times;</button>
-    <h2>Call Your Shot</h2>
-    <p class="sub">Say who you're backing and put your stake on the board.</p>
-    <form id="createForm">
-      <div class="field">
-        <label for="cName">Your name</label>
-        <input type="text" id="cName" required placeholder="e.g. Abel" />
+    <!-- CREATE BET MODAL -->
+    <div class="modal-backdrop" id="createBackdrop">
+      <div class="modal" style="position: relative">
+        <button class="close-x" data-close="createBackdrop">&times;</button>
+        <h2>Call Your Shot</h2>
+        <p class="sub">
+          Say who you're backing and put your stake on the board.
+        </p>
+        <form id="createForm">
+          <div class="field">
+            <label for="cName">Your name</label>
+            <input type="text" id="cName" required placeholder="e.g. Abel" />
+          </div>
+          <div class="field">
+            <label for="cFighter">Fighter you're backing</label>
+            <select id="cFighter" required></select>
+          </div>
+          <div class="field">
+            <label for="cFighterNew"
+              >Fighter not listed? Type a name instead</label
+            >
+            <input
+              type="text"
+              id="cFighterNew"
+              placeholder="Leave blank to use the dropdown"
+            />
+          </div>
+          <div class="field">
+            <label for="cAmount">Stake (ETB)</label>
+            <input
+              type="number"
+              id="cAmount"
+              required
+              min="1"
+              placeholder="25000"
+            />
+          </div>
+          <div class="field">
+            <label for="cNote">Trash talk (optional)</label>
+            <textarea
+              id="cNote"
+              placeholder="He's not making it out of round 2."
+            ></textarea>
+          </div>
+          <div class="modal-actions">
+            <button
+              type="button"
+              class="btn btn-ghost"
+              data-close="createBackdrop"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary">Post Bet</button>
+          </div>
+        </form>
       </div>
-      <div class="field">
-        <label for="cFighter">Fighter you're backing</label>
-        <select id="cFighter" required></select>
-      </div>
-      <div class="field">
-        <label for="cFighterNew">Fighter not listed? Type a name instead</label>
-        <input type="text" id="cFighterNew" placeholder="Leave blank to use the dropdown" />
-      </div>
-      <div class="field">
-        <label for="cAmount">Stake (ETB)</label>
-        <input type="number" id="cAmount" required min="1" placeholder="25000" />
-      </div>
-      <div class="field">
-        <label for="cNote">Trash talk (optional)</label>
-        <textarea id="cNote" placeholder="He's not making it out of round 2."></textarea>
-      </div>
-      <div class="modal-actions">
-        <button type="button" class="btn btn-ghost" data-close="createBackdrop">Cancel</button>
-        <button type="submit" class="btn btn-primary">Post Bet</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- BACK / CHALLENGE MODAL -->
-<div class="modal-backdrop" id="payBackdrop">
-  <div class="modal" style="position:relative;">
-    <button class="close-x" data-close="payBackdrop">&times;</button>
-    <h2>Cover The Bet</h2>
-    <p class="sub" id="payContext"></p>
-    <div class="telebirr-box">
-      Send the stake via Telebirr to:
-      <div class="num" id="telebirrNum"></div>
-      <div>Name on account: <strong id="telebirrName"></strong></div>
     </div>
-    <form id="payForm">
-      <div class="field">
-        <label for="pName">Your name</label>
-        <input type="text" id="pName" required />
+
+    <!-- BACK / CHALLENGE MODAL -->
+    <div class="modal-backdrop" id="payBackdrop">
+      <div class="modal" style="position: relative">
+        <button class="close-x" data-close="payBackdrop">&times;</button>
+        <h2>Cover The Bet</h2>
+        <p class="sub" id="payContext"></p>
+        <div class="telebirr-box">
+          Send the stake via Telebirr to:
+          <div class="num" id="telebirrNum"></div>
+          <div>Name on account: <strong id="telebirrName"></strong></div>
+        </div>
+        <form id="payForm">
+          <div class="field">
+            <label for="pName">Your name</label>
+            <input type="text" id="pName" required />
+          </div>
+          <div class="field">
+            <label for="pAmount">Amount you're sending (ETB)</label>
+            <input type="number" id="pAmount" required min="1" />
+          </div>
+          <div class="field">
+            <label for="pShot">Screenshot of the Telebirr payment</label>
+            <input type="file" id="pShot" accept="image/*" required />
+          </div>
+          <div class="modal-actions">
+            <button
+              type="button"
+              class="btn btn-ghost"
+              data-close="payBackdrop"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary" id="paySubmitBtn">
+              Submit for Review
+            </button>
+          </div>
+        </form>
       </div>
-      <div class="field">
-        <label for="pAmount">Amount you're sending (ETB)</label>
-        <input type="number" id="pAmount" required min="1" />
-      </div>
-      <div class="field">
-        <label for="pShot">Screenshot of the Telebirr payment</label>
-        <input type="file" id="pShot" accept="image/*" required />
-      </div>
-      <div class="modal-actions">
-        <button type="button" class="btn btn-ghost" data-close="payBackdrop">Cancel</button>
-        <button type="submit" class="btn btn-primary" id="paySubmitBtn">Submit for Review</button>
-      </div>
-    </form>
-  </div>
-</div>
+    </div>
 
-<div class="toast" id="toast"></div>
+    <div class="toast" id="toast"></div>
 
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
-<script src="config.js"></script>
-<script>
-const boutsEl = document.getElementById('bouts');
-const toastEl = document.getElementById('toast');
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+    <script src="config.js"></script>
+    <script>
+      const boutsEl = document.getElementById("bouts");
+      const toastEl = document.getElementById("toast");
 
-function showToast(msg) {
-  toastEl.textContent = msg;
-  toastEl.classList.add('show');
-  setTimeout(() => toastEl.classList.remove('show'), 3200);
-}
+      function showToast(msg) {
+        toastEl.textContent = msg;
+        toastEl.classList.add("show");
+        setTimeout(() => toastEl.classList.remove("show"), 3200);
+      }
 
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-document.querySelectorAll('[data-close]').forEach(btn => {
-  btn.addEventListener('click', () => closeModal(btn.dataset.close));
-});
+      function openModal(id) {
+        document.getElementById(id).classList.add("open");
+      }
+      function closeModal(id) {
+        document.getElementById(id).classList.remove("open");
+      }
+      document.querySelectorAll("[data-close]").forEach((btn) => {
+        btn.addEventListener("click", () => closeModal(btn.dataset.close));
+      });
 
-function money(n) {
-  return Number(n).toLocaleString('en-US') + ' ETB';
-}
+      function money(n) {
+        return Number(n).toLocaleString("en-US") + " ETB";
+      }
 
-// ---------- seed + load fighters into the create-bet dropdown ----------
-const DEFAULT_FIGHTERS = ['Jonny Jiu-Jitsu', 'Iron Miku', 'Ras Warrior', 'Abel "The Anvil"'];
+      // ---------- seed + load fighters into the create-bet dropdown ----------
+      const DEFAULT_FIGHTERS = [
+        "Jonny Jiu-Jitsu",
+        "Iron Miku",
+        "Ras Warrior",
+        'Abel "The Anvil"',
+      ];
 
-async function ensureFightersSeeded() {
-  const snap = await db.collection('fighters').limit(1).get();
-  if (snap.empty) {
-    const batch = db.batch();
-    DEFAULT_FIGHTERS.forEach(name => {
-      const ref = db.collection('fighters').doc();
-      batch.set(ref, { name });
-    });
-    await batch.commit();
-  }
-}
+      async function ensureFightersSeeded() {
+        try {
+          const snap = await db.collection("fighters").limit(1).get();
+          if (snap.empty) {
+            const batch = db.batch();
+            DEFAULT_FIGHTERS.forEach((name) => {
+              const ref = db.collection("fighters").doc();
+              batch.set(ref, { name });
+            });
+            await batch.commit();
+          }
+        } catch (err) {
+          console.error("ensureFightersSeeded failed:", err);
+          showToast(
+            "Could not load fighters — check Firestore rules (see console)."
+          );
+        }
+      }
 
-function listenFighters() {
-  db.collection('fighters').orderBy('name').onSnapshot(snap => {
-    const select = document.getElementById('cFighter');
-    select.innerHTML = '';
-    snap.forEach(doc => {
-      const opt = document.createElement('option');
-      opt.value = doc.data().name;
-      opt.textContent = doc.data().name;
-      select.appendChild(opt);
-    });
-  });
-}
+      function listenFighters() {
+        db.collection("fighters")
+          .orderBy("name")
+          .onSnapshot(
+            (snap) => {
+              const select = document.getElementById("cFighter");
+              select.innerHTML = "";
+              snap.forEach((doc) => {
+                const opt = document.createElement("option");
+                opt.value = doc.data().name;
+                opt.textContent = doc.data().name;
+                select.appendChild(opt);
+              });
+            },
+            (err) => {
+              console.error("listenFighters failed:", err);
+              showToast(
+                "Could not load fighters — check Firestore rules (see console)."
+              );
+            }
+          );
+      }
 
-// ---------- render bouts ----------
-function statusLabel(bet) {
-  if (bet.status === 'settled') return `SETTLED — ${bet.result || 'no result'}`;
-  return 'OPEN';
-}
+      // ---------- render bouts ----------
+      function statusLabel(bet) {
+        if (bet.status === "settled")
+          return `SETTLED — ${bet.result || "no result"}`;
+        return "OPEN";
+      }
 
-function renderChallengers(bet, betId) {
-  if (!bet.challengers || bet.challengers.length === 0) {
-    return `<div class="empty-state" style="padding:16px;">No one has covered this bet yet.</div>`;
-  }
-  return `<div class="challenger-list">` + bet.challengers.map(c => `
+      function renderChallengers(bet, betId) {
+        if (!bet.challengers || bet.challengers.length === 0) {
+          return `<div class="empty-state" style="padding:16px;">No one has covered this bet yet.</div>`;
+        }
+        return (
+          `<div class="challenger-list">` +
+          bet.challengers
+            .map(
+              (c) => `
     <div class="challenger-row">
-      <span class="name">${escapeHtml(c.name)} <span class="amt">${money(c.amount)}</span></span>
+      <span class="name">${escapeHtml(c.name)} <span class="amt">${money(
+                c.amount
+              )}</span></span>
       <span class="pill ${c.status}">${c.status}</span>
     </div>
-  `).join('') + `</div>`;
-}
+  `
+            )
+            .join("") +
+          `</div>`
+        );
+      }
 
-function escapeHtml(str) {
-  const d = document.createElement('div');
-  d.textContent = str;
-  return d.innerHTML;
-}
+      function escapeHtml(str) {
+        const d = document.createElement("div");
+        d.textContent = str;
+        return d.innerHTML;
+      }
 
-let currentBoutForPay = null;
+      let currentBoutForPay = null;
 
-function renderBouts(bets) {
-  if (bets.length === 0) {
-    boutsEl.innerHTML = `<div class="empty-state">No bets posted yet. Tap the + button and put one up.</div>`;
-    return;
-  }
-  boutsEl.innerHTML = bets.map((bet, i) => `
+      function renderBouts(bets) {
+        if (bets.length === 0) {
+          boutsEl.innerHTML = `<div class="empty-state">No bets posted yet. Tap the + button and put one up.</div>`;
+          return;
+        }
+        boutsEl.innerHTML = bets
+          .map(
+            (bet, i) => `
     <div class="bout">
-      <div class="bout-number">BOUT ${String(i + 1).padStart(2, '0')}</div>
+      <div class="bout-number">BOUT ${String(i + 1).padStart(2, "0")}</div>
       <div class="bout-main">
         <div class="corner red">
           <p class="who">${escapeHtml(bet.creatorName)} is rooting for</p>
@@ -188,112 +267,151 @@ function renderBouts(bets) {
           <p class="fighter">YOU?</p>
         </div>
       </div>
-      ${bet.note ? `<div class="bout-note">"${escapeHtml(bet.note)}"</div>` : ''}
+      ${
+        bet.note ? `<div class="bout-note">"${escapeHtml(bet.note)}"</div>` : ""
+      }
       ${renderChallengers(bet, bet.id)}
       <div class="bout-footer">
-        <span class="status-badge ${bet.status === 'open' ? 'open' : 'settled'}">${statusLabel(bet)}</span>
-        ${bet.status === 'open' ? `<button class="btn btn-primary" data-bet="${bet.id}" data-action="back">Bet Against Him</button>` : ''}
+        <span class="status-badge ${
+          bet.status === "open" ? "open" : "settled"
+        }">${statusLabel(bet)}</span>
+        ${
+          bet.status === "open"
+            ? `<button class="btn btn-primary" data-bet="${bet.id}" data-action="back">Bet Against Him</button>`
+            : ""
+        }
       </div>
     </div>
-  `).join('');
+  `
+          )
+          .join("");
 
-  boutsEl.querySelectorAll('[data-action="back"]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const bet = bets.find(b => b.id === btn.dataset.bet);
-      currentBoutForPay = bet;
-      document.getElementById('payContext').textContent =
-        `Covering ${bet.creatorName}'s bet on ${bet.fighterName} — suggested stake ${money(bet.amount)}.`;
-      document.getElementById('pAmount').value = bet.amount;
-      document.getElementById('telebirrNum').textContent = TELEBIRR_NUMBER;
-      document.getElementById('telebirrName').textContent = TELEBIRR_NAME;
-      openModal('payBackdrop');
-    });
-  });
-}
+        boutsEl.querySelectorAll('[data-action="back"]').forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const bet = bets.find((b) => b.id === btn.dataset.bet);
+            currentBoutForPay = bet;
+            document.getElementById("payContext").textContent = `Covering ${
+              bet.creatorName
+            }'s bet on ${bet.fighterName} — suggested stake ${money(
+              bet.amount
+            )}.`;
+            document.getElementById("pAmount").value = bet.amount;
+            document.getElementById("telebirrNum").textContent =
+              TELEBIRR_NUMBER;
+            document.getElementById("telebirrName").textContent = TELEBIRR_NAME;
+            openModal("payBackdrop");
+          });
+        });
+      }
 
-function listenBouts() {
-  db.collection('bets').orderBy('createdAt', 'desc').onSnapshot(snap => {
-    const bets = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    renderBouts(bets);
-  });
-}
+      function listenBouts() {
+        db.collection("bets")
+          .orderBy("createdAt", "desc")
+          .onSnapshot(
+            (snap) => {
+              const bets = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+              renderBouts(bets);
+            },
+            (err) => {
+              console.error("listenBouts failed:", err);
+              boutsEl.innerHTML = `<div class="error-state">Couldn't load bets. Open the browser console (F12) to see the Firestore error — most likely your database rules need to allow read/write, or Firestore/Storage haven't been created yet in the Firebase console.</div>`;
+            }
+          );
+      }
 
-// ---------- create bet ----------
-document.getElementById('openCreate').addEventListener('click', () => openModal('createBackdrop'));
+      // ---------- create bet ----------
+      document
+        .getElementById("openCreate")
+        .addEventListener("click", () => openModal("createBackdrop"));
 
-document.getElementById('createForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const name = document.getElementById('cName').value.trim();
-  const customFighter = document.getElementById('cFighterNew').value.trim();
-  const fighter = customFighter || document.getElementById('cFighter').value;
-  const amount = Number(document.getElementById('cAmount').value);
-  const note = document.getElementById('cNote').value.trim();
+      document
+        .getElementById("createForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const name = document.getElementById("cName").value.trim();
+          const customFighter = document
+            .getElementById("cFighterNew")
+            .value.trim();
+          const fighter =
+            customFighter || document.getElementById("cFighter").value;
+          const amount = Number(document.getElementById("cAmount").value);
+          const note = document.getElementById("cNote").value.trim();
 
-  if (customFighter) {
-    await db.collection('fighters').add({ name: customFighter });
-  }
+          if (customFighter) {
+            await db.collection("fighters").add({ name: customFighter });
+          }
 
-  await db.collection('bets').add({
-    creatorName: name,
-    fighterName: fighter,
-    amount,
-    note,
-    status: 'open',
-    result: null,
-    challengers: [],
-    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-  });
+          await db.collection("bets").add({
+            creatorName: name,
+            fighterName: fighter,
+            amount,
+            note,
+            status: "open",
+            result: null,
+            challengers: [],
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          });
 
-  e.target.reset();
-  closeModal('createBackdrop');
-  showToast('Bet posted to the board.');
-});
+          e.target.reset();
+          closeModal("createBackdrop");
+          showToast("Bet posted to the board.");
+        });
 
-// ---------- back a fighter (pay + upload screenshot) ----------
-document.getElementById('payForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const submitBtn = document.getElementById('paySubmitBtn');
-  const name = document.getElementById('pName').value.trim();
-  const amount = Number(document.getElementById('pAmount').value);
-  const file = document.getElementById('pShot').files[0];
-  if (!currentBoutForPay || !file) return;
+      // ---------- back a fighter (pay + upload screenshot) ----------
+      document
+        .getElementById("payForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const submitBtn = document.getElementById("paySubmitBtn");
+          const name = document.getElementById("pName").value.trim();
+          const amount = Number(document.getElementById("pAmount").value);
+          const file = document.getElementById("pShot").files[0];
+          if (!currentBoutForPay || !file) return;
 
-  submitBtn.textContent = 'Uploading...';
-  submitBtn.disabled = true;
+          submitBtn.textContent = "Uploading...";
+          submitBtn.disabled = true;
 
-  try {
-    const path = `bets/${currentBoutForPay.id}/${Date.now()}_${file.name}`;
-    const ref = storage.ref().child(path);
-    await ref.put(file);
-    const url = await ref.getDownloadURL();
+          try {
+            const path = `bets/${currentBoutForPay.id}/${Date.now()}_${
+              file.name
+            }`;
+            const ref = storage.ref().child(path);
+            await ref.put(file);
+            const url = await ref.getDownloadURL();
 
-    const challenger = {
-      id: `${Date.now()}`,
-      name,
-      amount,
-      screenshotUrl: url,
-      status: 'pending',
-    };
+            const challenger = {
+              id: `${Date.now()}`,
+              name,
+              amount,
+              screenshotUrl: url,
+              status: "pending",
+            };
 
-    await db.collection('bets').doc(currentBoutForPay.id).update({
-      challengers: firebase.firestore.FieldValue.arrayUnion(challenger),
-    });
+            await db
+              .collection("bets")
+              .doc(currentBoutForPay.id)
+              .update({
+                challengers:
+                  firebase.firestore.FieldValue.arrayUnion(challenger),
+              });
 
-    e.target.reset();
-    closeModal('payBackdrop');
-    showToast('Submitted — waiting for the admin to confirm your payment.');
-  } catch (err) {
-    console.error(err);
-    showToast('Something went wrong. Try again.');
-  } finally {
-    submitBtn.textContent = 'Submit for Review';
-    submitBtn.disabled = false;
-  }
-});
+            e.target.reset();
+            closeModal("payBackdrop");
+            showToast(
+              "Submitted — waiting for the admin to confirm your payment."
+            );
+          } catch (err) {
+            console.error(err);
+            showToast("Something went wrong. Try again.");
+          } finally {
+            submitBtn.textContent = "Submit for Review";
+            submitBtn.disabled = false;
+          }
+        });
 
-// ---------- boot ----------
-ensureFightersSeeded().then(listenFighters);
-listenBouts();
-</script>
-</body>
+      // ---------- boot ----------
+      ensureFightersSeeded().then(listenFighters);
+      listenBouts();
+    </script>
+  </body>
 </html>
