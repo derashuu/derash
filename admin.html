@@ -2,8 +2,11 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ETFC 02 — Corner (Admin)</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1"
+    />
+    <title>ETFC 002 — Corner (Admin)</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
@@ -25,7 +28,7 @@
     <!-- ADMIN SHELL -->
     <div class="admin-shell" id="adminShell">
       <header class="marquee">
-        <div class="event-tag">ETFC 02 &middot; ADMIN</div>
+        <div class="event-tag">ETFC 002 &middot; ADMIN</div>
         <h1>THE <span>CORNER</span></h1>
         <p>
           Review payment screenshots, approve or reject backers, settle results.
@@ -64,7 +67,6 @@
 
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
     <script src="config.js"></script>
     <script>
       // ---------- gate ----------
@@ -169,9 +171,11 @@
         return `
     <div class="challenger-row" style="align-items:flex-start;">
       <div>
-        <div class="name">${escapeHtml(c.name)} <span class="amt">${money(
-          c.amount
-        )}</span></div>
+        <div class="name">${escapeHtml(c.name)}${
+          c.phone
+            ? ' <span class="contact">' + escapeHtml(c.phone) + "</span>"
+            : ""
+        } <span class="amt">${money(c.amount)}</span></div>
         <a class="screenshot-link" href="${
           c.screenshotUrl
         }" target="_blank" rel="noopener">View payment screenshot &rarr;</a>
@@ -231,7 +235,9 @@
       <div class="bout-number">BOUT ${String(i + 1).padStart(2, "0")}</div>
       <div class="bout-main">
         <div class="corner red">
-          <p class="who">${escapeHtml(bet.creatorName)} backs</p>
+          <p class="who">${escapeHtml(bet.creatorName)}${
+              bet.creatorPhone ? " · " + escapeHtml(bet.creatorPhone) : ""
+            } backs</p>
           <p class="fighter">${escapeHtml(bet.fighterName)}</p>
           <p class="stake">${money(bet.amount)}</p>
         </div>

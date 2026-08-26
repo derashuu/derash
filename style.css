@@ -3,13 +3,11 @@
 :root {
   --bg: #ffffff;
   --surface: #faf7f0;
-  --surface-raised: #f2ecdd;
+  --surface-raised: #f0e9d8;
   --line: #e2d9c2;
-  --blood: #b81733;
-  --blood-bright: #d81e3f;
   --gold: #a9790b;
   --gold-bright: #c8940f;
-  --ink: #1c1a15;
+  --ink: #17150f;
   --on-accent: #fdf9ef;
   --smoke: #726c5e;
 }
@@ -26,6 +24,7 @@ body {
   color: var(--ink);
   font-family: "Inter", sans-serif;
   min-height: 100vh;
+  -webkit-text-size-adjust: 100%;
 }
 
 .display {
@@ -79,7 +78,7 @@ textarea:focus-visible {
 
 .marquee h1 {
   font-family: "Bebas Neue", sans-serif;
-  font-size: clamp(48px, 10vw, 96px);
+  font-size: clamp(40px, 11vw, 96px);
   letter-spacing: 0.03em;
   margin: 4px 0 8px;
   line-height: 0.95;
@@ -87,7 +86,7 @@ textarea:focus-visible {
 }
 
 .marquee h1 span {
-  color: var(--blood);
+  color: var(--gold-bright);
 }
 
 .marquee p {
@@ -101,7 +100,7 @@ textarea:focus-visible {
 .shell {
   max-width: 900px;
   margin: 0 auto;
-  padding: 32px 20px 120px;
+  padding: 28px 16px 120px;
 }
 
 .section-label {
@@ -124,13 +123,13 @@ textarea:focus-visible {
 }
 
 .error-state {
-  border: 1px solid var(--blood);
+  border: 1px solid var(--ink);
   border-radius: 4px;
   padding: 20px;
   text-align: center;
-  color: var(--blood);
+  color: var(--ink);
   font-size: 13px;
-  background: rgba(184, 23, 51, 0.06);
+  background: var(--surface-raised);
 }
 
 /* ---------- bout card ---------- */
@@ -142,7 +141,7 @@ textarea:focus-visible {
   border-radius: 6px;
   margin-bottom: 20px;
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(28, 26, 21, 0.04);
+  box-shadow: 0 1px 3px rgba(23, 21, 15, 0.05);
 }
 
 .bout-number {
@@ -153,11 +152,21 @@ textarea:focus-visible {
   padding: 10px 16px 0;
 }
 
+.bout-tag {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold);
+  padding: 0 16px;
+  margin-top: 2px;
+}
+
 .bout-main {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   padding: 8px 20px 18px;
 }
 
@@ -179,7 +188,7 @@ textarea:focus-visible {
 
 .corner .fighter {
   font-family: "Bebas Neue", sans-serif;
-  font-size: 26px;
+  font-size: 24px;
   letter-spacing: 0.02em;
   margin: 0;
   line-height: 1;
@@ -187,7 +196,7 @@ textarea:focus-visible {
 }
 
 .corner.red .fighter {
-  color: var(--blood);
+  color: var(--ink);
 }
 .corner.blue .fighter {
   color: var(--gold);
@@ -200,12 +209,19 @@ textarea:focus-visible {
   margin-top: 6px;
 }
 
+.corner .backer {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  color: var(--smoke);
+  margin-top: 4px;
+}
+
 .vs-seam {
   font-family: "Bebas Neue", sans-serif;
-  font-size: 20px;
+  font-size: 18px;
   color: var(--smoke);
   position: relative;
-  padding: 0 6px;
+  padding: 0 4px;
 }
 
 .bout-note {
@@ -268,6 +284,11 @@ textarea:focus-visible {
   font-weight: 600;
   color: var(--ink);
 }
+.challenger-row .contact {
+  color: var(--smoke);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+}
 .challenger-row .amt {
   color: var(--smoke);
   font-family: "JetBrains Mono", monospace;
@@ -281,19 +302,23 @@ textarea:focus-visible {
   text-transform: uppercase;
   padding: 2px 8px;
   border-radius: 999px;
+  white-space: nowrap;
 }
 
 .pill.pending {
   background: rgba(169, 121, 11, 0.14);
   color: var(--gold);
+  border: 1px solid var(--gold);
 }
 .pill.approved {
-  background: rgba(30, 140, 80, 0.14);
-  color: #1e8c50;
+  background: var(--ink);
+  color: var(--on-accent);
 }
 .pill.rejected {
-  background: rgba(184, 23, 51, 0.12);
-  color: var(--blood);
+  background: var(--surface-raised);
+  color: var(--smoke);
+  border: 1px solid var(--line);
+  text-decoration: line-through;
 }
 
 /* ---------- buttons ---------- */
@@ -329,26 +354,31 @@ textarea:focus-visible {
 }
 
 .btn-approve {
-  background: rgba(30, 140, 80, 0.12);
-  color: #1e8c50;
+  background: var(--ink);
+  color: var(--on-accent);
   padding: 6px 12px;
   font-size: 12px;
   border-radius: 4px;
 }
 .btn-reject {
-  background: rgba(184, 23, 51, 0.12);
-  color: var(--blood);
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--smoke);
   padding: 6px 12px;
   font-size: 12px;
   border-radius: 4px;
 }
+.btn-reject:hover {
+  border-color: var(--ink);
+  color: var(--ink);
+}
 
 .fab {
   position: fixed;
-  right: 24px;
-  bottom: 24px;
-  width: 60px;
-  height: 60px;
+  right: 20px;
+  bottom: 20px;
+  width: 58px;
+  height: 58px;
   border-radius: 50%;
   background: var(--gold);
   color: var(--on-accent);
@@ -358,6 +388,7 @@ textarea:focus-visible {
   align-items: center;
   justify-content: center;
   box-shadow: 0 8px 24px rgba(169, 121, 11, 0.35);
+  z-index: 40;
 }
 
 .fab:hover {
@@ -369,11 +400,11 @@ textarea:focus-visible {
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(28, 26, 21, 0.5);
+  background: rgba(23, 21, 15, 0.55);
   display: none;
   align-items: flex-start;
   justify-content: center;
-  padding: 40px 16px;
+  padding: 24px 12px;
   overflow-y: auto;
   z-index: 50;
 }
@@ -388,13 +419,13 @@ textarea:focus-visible {
   border-radius: 8px;
   width: 100%;
   max-width: 420px;
-  padding: 24px;
-  box-shadow: 0 12px 40px rgba(28, 26, 21, 0.12);
+  padding: 22px;
+  box-shadow: 0 12px 40px rgba(23, 21, 15, 0.15);
 }
 
 .modal h2 {
   font-family: "Bebas Neue", sans-serif;
-  font-size: 28px;
+  font-size: 26px;
   letter-spacing: 0.02em;
   margin: 0 0 4px;
   color: var(--ink);
@@ -429,7 +460,7 @@ textarea:focus-visible {
   padding: 10px 12px;
   color: var(--ink);
   font-family: "Inter", sans-serif;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .field textarea {
@@ -475,7 +506,7 @@ textarea:focus-visible {
 
 .toast {
   position: fixed;
-  bottom: 24px;
+  bottom: 20px;
   left: 50%;
   transform: translateX(-50%) translateY(20px);
   background: var(--ink);
@@ -489,6 +520,7 @@ textarea:focus-visible {
   transition: all 0.25s ease;
   z-index: 60;
   max-width: 90vw;
+  text-align: center;
 }
 
 .toast.show {
@@ -527,7 +559,8 @@ textarea:focus-visible {
 }
 
 .gate-error {
-  color: var(--blood);
+  color: var(--ink);
+  font-weight: 600;
   font-size: 12px;
   margin-top: 10px;
   min-height: 16px;
@@ -560,7 +593,7 @@ textarea:focus-visible {
 }
 
 .fighter-chip button:hover {
-  color: var(--blood);
+  color: var(--ink);
 }
 
 .screenshot-link {
@@ -588,13 +621,51 @@ textarea:focus-visible {
   font-size: 12px;
 }
 
-@media (max-width: 520px) {
+/* ---------- mobile ---------- */
+
+@media (max-width: 640px) {
+  .marquee {
+    padding: 36px 16px 24px;
+  }
+  .shell {
+    padding: 20px 12px 110px;
+  }
   .bout-main {
     grid-template-columns: 1fr auto 1fr;
     gap: 6px;
     padding: 8px 14px 14px;
   }
   .corner .fighter {
-    font-size: 20px;
+    font-size: 19px;
+  }
+  .corner .who {
+    font-size: 11px;
+  }
+  .bout-footer {
+    padding: 10px 14px;
+  }
+  .bout-footer .btn {
+    flex: 1 1 100%;
+    text-align: center;
+  }
+  .modal {
+    max-width: 94vw;
+    padding: 18px;
+  }
+  .fab {
+    right: 16px;
+    bottom: 16px;
+    width: 54px;
+    height: 54px;
+    font-size: 26px;
+  }
+}
+
+@media (max-width: 380px) {
+  .corner .fighter {
+    font-size: 16px;
+  }
+  .vs-seam {
+    font-size: 15px;
   }
 }

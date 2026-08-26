@@ -1,5 +1,5 @@
 /* =========================================================
-   ETFC 02 — FIREBASE CONFIG
+   ETFC 02 — CONFIG
    This is the ONLY file you need to edit with your own values.
    See README.md for exactly where to get each one.
    ========================================================= */
@@ -20,7 +20,11 @@ const ADMIN_PASSCODE = "abcde12345";
 const TELEBIRR_NUMBER = "09XXXXXXXX";
 const TELEBIRR_NAME = "Your Name Here";
 
+// ImgBB API key — used to host payment screenshots (free, no billing account
+// needed, unlike Firebase Storage which now requires the paid Blaze plan).
+// Get yours free at https://api.imgbb.com/ (sign up, "Add API key").
+const IMGBB_API_KEY = "b0c945dc58891773df56977dd9bf8d35";
+
 // ---- init (shared by index.html and admin.html) ----
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-const storage = firebase.storage();
