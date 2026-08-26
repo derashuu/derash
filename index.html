@@ -20,8 +20,13 @@
     </header>
 
     <main class="shell">
-      <p class="section-label">Open Bouts</p>
-      <div id="bouts"></div>
+      <p class="section-label">Open Bets — No Backer Yet</p>
+      <div id="boutsOpen"></div>
+
+      <p class="section-label" style="margin-top: 40px">
+        Already Backed / Settled
+      </p>
+      <div id="boutsFilled"></div>
     </main>
 
     <button
@@ -145,7 +150,8 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
     <script src="config.js"></script>
     <script>
-      const boutsEl = document.getElementById("bouts");
+      const boutsOpenEl = document.getElementById("boutsOpen");
+      const boutsFilledEl = document.getElementById("boutsFilled");
       const toastEl = document.getElementById("toast");
 
       function showToast(msg) {
@@ -371,24 +377,19 @@
         if (!bet.challengers || bet.challengers.length === 0) {
           return `<div class="empty-state" style="padding:16px;">No one has covered this bet yet — waiting on a counterparty.</div>`;
         }
-        return (
-          `<div class="challenger-list">` +
-          bet.challengers
-            .map(
-              (c) => `
-    <div class="challenger-row">
-      <span class="name">${escapeHtml(
-        maskName(c.name)
-      )} <span class="contact">${escapeHtml(
-                maskPhone(c.phone)
-              )}</span> <span class="amt">${money(c.amount)}</span></span>
-      <span class="pill ${c.status}">${c.status}</span>
-    </div>
-  `
-            )
-            .join("") +
-          `</div>`
-        );
+        const c = bet.challengers[0];
+        return `
+          <div class="challenger-list">
+            <div class="challenger-row">
+              <span class="name">${escapeHtml(
+                maskName(c.name)
+              )} <span class="contact">${escapeHtml(
+          maskPhone(c.phone)
+        )}</span> <span class="amt">${money(c.amount)}</span></span>
+              <span class="pill ${c.status}">${c.status}</span>
+            </div>
+          </div>
+        `;
       }
 
       function escapeHtml(str) {
@@ -399,14 +400,15 @@
 
       let currentBoutForPay = null;
 
-      function renderBouts(bets) {
-        if (bets.length === 0) {
-          boutsEl.innerHTML = `<div class="empty-state">No bets posted yet. Tap the + button and put one up.</div>`;
-          return;
-        }
-        boutsEl.innerHTML = bets
-          .map(
-            (bet, i) => `
+      // 1v1 model: a bet is "open" (no backer yet) until exactly one
+      // person backs it, at which point it's filled — no second backer
+      // can join the same bet.
+      function hasBacker(bet) {
+        return bet.challengers && bet.challengers.length > 0;
+      }
+
+      function renderBoutCard(bet, i) {
+        return `
     <div class="bout">
       <div class="bout-number">BOUT ${String(i + 1).padStart(2, "0")}</div>
       <div class="bout-main">
@@ -426,8 +428,12 @@
         </div>
         <div class="vs-seam">VS</div>
         <div class="corner blue">
-          <p class="who">open slot</p>
-          <p class="fighter">YOU?</p>
+          <p class="who">${
+            hasBacker(bet)
+              ? escapeHtml(maskName(bet.challengers[0].name)) + " accepted"
+              : "open slot"
+          }</p>
+          <p class="fighter">${hasBacker(bet) ? "YOU?" : "YOU?"}</p>
         </div>
       </div>
       ${
@@ -439,30 +445,54 @@
           bet.status === "open" ? "open" : "settled"
         }">${statusLabel(bet)}</span>
         ${
-          bet.status === "open"
+          bet.status === "open" && !hasBacker(bet)
             ? `<button class="btn btn-primary" data-bet="${bet.id}" data-action="back">Bet Against Him</button>`
+            : bet.status === "open" && hasBacker(bet)
+            ? `<span class="status-badge filled">FILLED — 1v1, no more backers</span>`
             : ""
         }
       </div>
     </div>
-  `
-          )
-          .join("");
+  `;
+      }
 
-        boutsEl.querySelectorAll('[data-action="back"]').forEach((btn) => {
-          btn.addEventListener("click", () => {
-            const bet = bets.find((b) => b.id === btn.dataset.bet);
-            currentBoutForPay = bet;
-            document.getElementById(
-              "payContext"
-            ).textContent = `Covering ${maskName(bet.creatorName)}'s bet on ${
-              bet.fighterName
-            } — suggested stake ${money(bet.amount)}.`;
-            document.getElementById("pAmount").value = bet.amount;
-            document.getElementById("telebirrNum").textContent =
-              TELEBIRR_NUMBER;
-            document.getElementById("telebirrName").textContent = TELEBIRR_NAME;
-            openModal("payBackdrop");
+      function renderBouts(bets) {
+        // Open: no backer yet, still 1v1-available. Filled/settled: already
+        // has its one backer, or the result has been recorded.
+        const openBets = bets.filter(
+          (b) => !hasBacker(b) && b.status === "open"
+        );
+        const filledBets = bets.filter(
+          (b) => hasBacker(b) || b.status !== "open"
+        );
+
+        boutsOpenEl.innerHTML =
+          openBets.length === 0
+            ? `<div class="empty-state">No open bets right now. Tap the + button and put one up.</div>`
+            : openBets.map((bet, i) => renderBoutCard(bet, i)).join("");
+
+        boutsFilledEl.innerHTML =
+          filledBets.length === 0
+            ? `<div class="empty-state">Nothing backed or settled yet.</div>`
+            : filledBets.map((bet, i) => renderBoutCard(bet, i)).join("");
+
+        [boutsOpenEl, boutsFilledEl].forEach((container) => {
+          container.querySelectorAll('[data-action="back"]').forEach((btn) => {
+            btn.addEventListener("click", () => {
+              const bet = bets.find((b) => b.id === btn.dataset.bet);
+              currentBoutForPay = bet;
+              document.getElementById(
+                "payContext"
+              ).textContent = `Covering ${maskName(bet.creatorName)}'s bet on ${
+                bet.fighterName
+              } — suggested stake ${money(bet.amount)}.`;
+              document.getElementById("pAmount").value = bet.amount;
+              document.getElementById("telebirrNum").textContent =
+                TELEBIRR_NUMBER;
+              document.getElementById("telebirrName").textContent =
+                TELEBIRR_NAME;
+              openModal("payBackdrop");
+            });
           });
         });
       }
@@ -477,7 +507,9 @@
             },
             (err) => {
               console.error("listenBouts failed:", err);
-              boutsEl.innerHTML = `<div class="error-state">Couldn't load bets. Open the browser console (F12) to see the Firestore error — most likely your database rules need to allow read/write, or Firestore hasn't been created yet in the Firebase console.</div>`;
+              const msg = `<div class="error-state">Couldn't load bets. Open the browser console (F12) to see the Firestore error — most likely your database rules need to allow read/write, or Firestore hasn't been created yet in the Firebase console.</div>`;
+              boutsOpenEl.innerHTML = msg;
+              boutsFilledEl.innerHTML = "";
             }
           );
       }
@@ -571,8 +603,7 @@
               .collection("bets")
               .doc(currentBoutForPay.id)
               .update({
-                challengers:
-                  firebase.firestore.FieldValue.arrayUnion(challenger),
+                challengers: [challenger],
               });
 
             e.target.reset();

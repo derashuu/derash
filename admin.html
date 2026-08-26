@@ -195,23 +195,32 @@
   `;
       }
 
+      function renderChallengersAdmin(bet) {
+        if (!bet.challengers || bet.challengers.length === 0) {
+          return `<div class="empty-state" style="margin:0 20px 16px;">No backers yet.</div>`;
+        }
+        const c = bet.challengers[0];
+        return `<div class="challenger-list">${renderChallengerAdminRow(
+          bet,
+          c
+        )}</div>`;
+      }
+
       function renderResultRow(bet) {
-        const approved = (bet.challengers || []).filter(
-          (c) => c.status === "approved"
-        );
         const options = [
           `<option value="">No result yet</option>`,
           `<option value="${escapeHtml(bet.fighterName)}">${escapeHtml(
             bet.fighterName
           )} (creator's pick)</option>`,
-        ].concat(
-          approved.map(
-            (c) =>
-              `<option value="${escapeHtml(c.name)}">${escapeHtml(
-                c.name
-              )} (backer)</option>`
-          )
-        );
+        ];
+        if (bet.challengers && bet.challengers.length > 0) {
+          const c = bet.challengers[0];
+          options.push(
+            `<option value="${escapeHtml(c.name)}">${escapeHtml(
+              c.name
+            )} (backer)</option>`
+          );
+        }
         return `
     <div class="result-row">
       <span style="font-size:12px; color:var(--smoke); text-transform:uppercase; letter-spacing:0.08em;">Settle:</span>
@@ -252,13 +261,7 @@
       ${
         bet.note ? `<div class="bout-note">"${escapeHtml(bet.note)}"</div>` : ""
       }
-      ${
-        bet.challengers && bet.challengers.length
-          ? `<div class="challenger-list">${bet.challengers
-              .map((c) => renderChallengerAdminRow(bet, c))
-              .join("")}</div>`
-          : `<div class="empty-state" style="margin:0 20px 16px;">No backers yet.</div>`
-      }
+      ${renderChallengersAdmin(bet)}
       ${renderResultRow(bet)}
     </div>
   `

@@ -50,8 +50,9 @@ button:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid var(--gold);
+  outline: 2px solid var(--gold-bright);
   outline-offset: 2px;
+  border-color: var(--gold-bright);
 }
 
 /* ---------- marquee header ---------- */
@@ -141,14 +142,15 @@ textarea:focus-visible {
   border-radius: 6px;
   margin-bottom: 20px;
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(23, 21, 15, 0.05);
+  box-shadow: 0 1px 3px rgba(23, 21, 15, 0.05),
+    0 0 0 1px rgba(169, 121, 11, 0.08) inset;
 }
 
 .bout-number {
   font-family: "JetBrains Mono", monospace;
   font-size: 11px;
   letter-spacing: 0.15em;
-  color: var(--smoke);
+  color: var(--gold);
   padding: 10px 16px 0;
 }
 
@@ -175,9 +177,15 @@ textarea:focus-visible {
 }
 .corner.red {
   text-align: left;
+  background: linear-gradient(135deg, rgba(169, 121, 11, 0.08), transparent);
+  border-radius: 4px;
+  padding: 8px;
 }
 .corner.blue {
   text-align: right;
+  background: linear-gradient(225deg, rgba(169, 121, 11, 0.08), transparent);
+  border-radius: 4px;
+  padding: 8px;
 }
 
 .corner .who {
@@ -195,10 +203,23 @@ textarea:focus-visible {
   overflow-wrap: anywhere;
 }
 
+.corner.red {
+  background: linear-gradient(135deg, rgba(169, 121, 11, 0.12), transparent);
+  border-right: 2px solid var(--gold);
+}
+.corner.blue {
+  background: linear-gradient(225deg, rgba(169, 121, 11, 0.12), transparent);
+  border-left: 2px solid var(--gold);
+}
 .corner.red .fighter {
-  color: var(--ink);
+  color: var(--gold-bright);
+  text-shadow: 0 0 8px rgba(169, 121, 11, 0.3);
 }
 .corner.blue .fighter {
+  color: var(--gold-bright);
+  text-shadow: 0 0 8px rgba(169, 121, 11, 0.3);
+}
+.corner .stake {
   color: var(--gold);
 }
 
@@ -219,7 +240,7 @@ textarea:focus-visible {
 .vs-seam {
   font-family: "Bebas Neue", sans-serif;
   font-size: 18px;
-  color: var(--smoke);
+  color: var(--gold);
   position: relative;
   padding: 0 4px;
 }
@@ -232,13 +253,14 @@ textarea:focus-visible {
 }
 
 .bout-footer {
-  border-top: 1px solid var(--line);
+  border-top: 1px solid var(--gold);
   padding: 12px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
+  background: linear-gradient(90deg, rgba(169, 121, 11, 0.05), transparent);
 }
 
 .status-badge {
@@ -261,6 +283,18 @@ textarea:focus-visible {
   border-color: var(--ink);
 }
 
+.status-badge.filled {
+  color: var(--gold-bright);
+  border-color: var(--gold-bright);
+  background: rgba(169, 121, 11, 0.12);
+}
+
+.status-badge.filled {
+  color: var(--gold);
+  border-color: var(--gold);
+  background: rgba(169, 121, 11, 0.12);
+}
+
 .challenger-list {
   padding: 0 20px 16px;
   display: flex;
@@ -273,8 +307,12 @@ textarea:focus-visible {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  background: var(--surface-raised);
-  border: 1px solid var(--line);
+  background: linear-gradient(
+    135deg,
+    rgba(169, 121, 11, 0.1),
+    var(--surface-raised)
+  );
+  border: 1px solid var(--gold);
   border-radius: 4px;
   padding: 8px 12px;
   font-size: 13px;
@@ -387,7 +425,8 @@ textarea:focus-visible {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 24px rgba(169, 121, 11, 0.35);
+  box-shadow: 0 8px 24px rgba(169, 121, 11, 0.5),
+    0 0 0 2px rgba(169, 121, 11, 0.3);
   z-index: 40;
 }
 
@@ -415,12 +454,13 @@ textarea:focus-visible {
 
 .modal {
   background: var(--bg);
-  border: 1px solid var(--line);
+  border: 1px solid var(--gold);
   border-radius: 8px;
   width: 100%;
   max-width: 420px;
   padding: 22px;
-  box-shadow: 0 12px 40px rgba(23, 21, 15, 0.15);
+  box-shadow: 0 12px 40px rgba(169, 121, 11, 0.15),
+    0 0 0 1px rgba(169, 121, 11, 0.1) inset;
 }
 
 .modal h2 {
@@ -455,7 +495,7 @@ textarea:focus-visible {
 .field textarea {
   width: 100%;
   background: var(--surface);
-  border: 1px solid var(--line);
+  border: 1px solid var(--gold);
   border-radius: 4px;
   padding: 10px 12px;
   color: var(--ink);
@@ -469,13 +509,18 @@ textarea:focus-visible {
 }
 
 .telebirr-box {
-  background: var(--surface-raised);
-  border: 1px dashed var(--gold);
-  border-radius: 4px;
-  padding: 14px;
+  background: linear-gradient(
+    135deg,
+    rgba(169, 121, 11, 0.1),
+    var(--surface-raised)
+  );
+  border: 2px solid var(--gold);
+  border-radius: 6px;
+  padding: 16px;
   margin-bottom: 16px;
   font-size: 13px;
   color: var(--ink);
+  box-shadow: 0 0 16px rgba(169, 121, 11, 0.15);
 }
 
 .telebirr-box .num {
@@ -510,7 +555,7 @@ textarea:focus-visible {
   left: 50%;
   transform: translateX(-50%) translateY(20px);
   background: var(--ink);
-  border: 1px solid var(--gold);
+  border: 2px solid var(--gold);
   color: var(--on-accent);
   padding: 12px 20px;
   border-radius: 6px;
@@ -543,6 +588,10 @@ textarea:focus-visible {
   width: 100%;
   max-width: 340px;
   text-align: center;
+  border: 2px solid var(--gold);
+  border-radius: 8px;
+  padding: 32px;
+  background: linear-gradient(135deg, rgba(169, 121, 11, 0.1), var(--bg));
 }
 
 .gate-box h1 {
@@ -577,8 +626,12 @@ textarea:focus-visible {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: var(--surface-raised);
-  border: 1px solid var(--line);
+  background: linear-gradient(
+    135deg,
+    rgba(169, 121, 11, 0.12),
+    var(--surface-raised)
+  );
+  border: 1px solid var(--gold);
   border-radius: 999px;
   padding: 6px 10px 6px 14px;
   font-size: 13px;
@@ -608,8 +661,12 @@ textarea:focus-visible {
   gap: 8px;
   flex-wrap: wrap;
   padding: 12px 20px;
-  border-top: 1px solid var(--line);
-  background: var(--surface-raised);
+  border-top: 1px solid var(--gold);
+  background: linear-gradient(
+    135deg,
+    rgba(169, 121, 11, 0.1),
+    var(--surface-raised)
+  );
 }
 
 .result-row select {
