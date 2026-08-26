@@ -208,10 +208,10 @@
           `<option value="">ገና ውጤት የለም</option>`,
           `<option value="${escapeHtml(bet.fighterName)}"${
             bet.result === bet.fighterName ? " selected" : ""
-          }>${escapeHtml(bet.fighterName)} (creator's pick) ያሸንፋል</option>`,
+          }>${escapeHtml(bet.fighterName)} ያሸንፋል (የፈጣሪው ምርጫ)</option>`,
           `<option value="OPPONENT"${
             bet.result === "OPPONENT" ? " selected" : ""
-          }>The other side wins (all backers get paid)</option>`,
+          }>ተቃራኒ ወገን ያሸንፋል (ተቃራኒው ይከፈላል)</option>`,
         ];
         return `
     <div class="result-row">
