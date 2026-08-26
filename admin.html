@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ETFC 02 — Corner (Admin)</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- GATE -->
+<div class="gate" id="gate">
+  <div class="gate-box">
+    <h1 class="display">THE CORNER</h1>
+    <p>Admin access only. Enter the passcode.</p>
+    <div class="field">
+      <input type="password" id="passInput" placeholder="Passcode" />
+    </div>
+    <button class="btn btn-primary" id="enterBtn" style="width:100%;">Enter</button>
+    <div class="gate-error" id="gateError"></div>
+  </div>
+</div>
+
+<!-- ADMIN SHELL -->
+<div class="admin-shell" id="adminShell">
+  <header class="marquee">
+    <div class="event-tag">ETFC 02 &middot; ADMIN</div>
+    <h1>THE <span>CORNER</span></h1>
+    <p>Review payment screenshots, approve or reject backers, settle results.</p>
+  </header>
+
+  <main class="shell">
+    <p class="section-label">Fighter Roster</p>
+    <div id="fighterChips" style="margin-bottom:12px;"></div>
+    <form id="addFighterForm" style="display:flex; gap:8px; margin-bottom:36px;">
+      <input type="text" id="newFighterName" placeholder="Add a fighter name" style="flex:1; background:var(--surface); border:1px solid var(--line); border-radius:4px; padding:10px 12px; color:var(--bone);" />
+      <button type="submit" class="btn btn-ghost">Add</button>
+    </form>
+
+    <p class="section-label">All Bets</p>
+    <div id="bouts"></div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+<script src="config.js"></script>
+<script>
+// ---------- gate ----------
+const gate = document.getElementById('gate');
+const adminShell = document.getElementById('adminShell');
+const gateError = document.getElementById('gateError');
+
+function tryEnter() {
+  const val = document.getElementById('passInput').value;
+  if (val === ADMIN_PASSCODE) {
+    sessionStorage.setItem('etfc_admin_ok', '1');
+    gate.style.display = 'none';
+    adminShell.classList.add('open');
+    boot();
+  } else {
+    gateError.textContent = 'Wrong passcode.';
+  }
+}
+
+document.getElementById('enterBtn').addEventListener('click', tryEnter);
+document.getElementById('passInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') tryEnter();
+});
+
+if (sessionStorage.getItem('etfc_admin_ok') === '1') {
+  gate.style.display = 'none';
+  adminShell.classList.add('open');
+  boot();
+}
+
+// ---------- shared helpers ----------
+const toastEl = document.getElementById('toast');
+function showToast(msg) {
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  setTimeout(() => toastEl.classList.remove('show'), 3200);
+}
+function money(n) { return Number(n).toLocaleString('en-US') + ' ETB'; }
+function escapeHtml(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+// ---------- boot: only runs after passcode accepted ----------
+function boot() {
+  listenFighters();
+  listenBouts();
+
+  document.getElementById('addFighterForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const input = document.getElementById('newFighterName');
+    const name = input.value.trim();
+    if (!name) return;
+    await db.collection('fighters').add({ name });
+    input.value = '';
+  });
+}
+
+// ---------- fighter roster ----------
+function listenFighters() {
+  db.collection('fighters').orderBy('name').onSnapshot(snap => {
+    const el = document.getElementById('fighterChips');
+    if (snap.empty) {
+      el.innerHTML = `<div class="empty-state">No fighters yet. Add one below.</div>`;
+      return;
+    }
+    el.innerHTML = snap.docs.map(doc => `
+      <span class="fighter-chip">
+        ${escapeHtml(doc.data().name)}
+        <button data-id="${doc.id}" title="Remove fighter">&times;</button>
+      </span>
+    `).join('');
+    el.querySelectorAll('button[data-id]').forEach(btn => {
+      btn.addEventListener('click', () => db.collection('fighters').doc(btn.dataset.id).delete());
+    });
+  });
+}
+
+// ---------- bouts ----------
+function renderChallengerAdminRow(bet, c) {
+  return `
+    <div class="challenger-row" style="align-items:flex-start;">
+      <div>
+        <div class="name">${escapeHtml(c.name)} <span class="amt">${money(c.amount)}</span></div>
+        <a class="screenshot-link" href="${c.screenshotUrl}" target="_blank" rel="noopener">View payment screenshot &rarr;</a>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span class="pill ${c.status}">${c.status}</span>
+        ${c.status === 'pending' ? `
+          <button class="btn-approve" data-bet="${bet.id}" data-cid="${c.id}" data-action="approve">Approve</button>
+          <button class="btn-reject" data-bet="${bet.id}" data-cid="${c.id}" data-action="reject">Reject</button>
+        ` : ''}
+      </div>
+    </div>
+  `;
+}
+
+function renderResultRow(bet) {
+  const approved = (bet.challengers || []).filter(c => c.status === 'approved');
+  const options = [`<option value="">No result yet</option>`, `<option value="${escapeHtml(bet.fighterName)}">${escapeHtml(bet.fighterName)} (creator's pick)</option>`]
+    .concat(approved.map(c => `<option value="${escapeHtml(c.name)}">${escapeHtml(c.name)} (backer)</option>`));
+  return `
+    <div class="result-row">
+      <span style="font-size:12px; color:var(--smoke); text-transform:uppercase; letter-spacing:0.08em;">Settle:</span>
+      <select data-bet="${bet.id}" data-action="settle">${options.join('')}</select>
+    </div>
+  `;
+}
+
+function renderBouts(bets) {
+  const boutsEl = document.getElementById('bouts');
+  if (bets.length === 0) {
+    boutsEl.innerHTML = `<div class="empty-state">No bets on the board yet.</div>`;
+    return;
+  }
+  boutsEl.innerHTML = bets.map((bet, i) => `
+    <div class="bout">
+      <div class="bout-number">BOUT ${String(i + 1).padStart(2, '0')}</div>
+      <div class="bout-main">
+        <div class="corner red">
+          <p class="who">${escapeHtml(bet.creatorName)} backs</p>
+          <p class="fighter">${escapeHtml(bet.fighterName)}</p>
+          <p class="stake">${money(bet.amount)}</p>
+        </div>
+        <div class="vs-seam">VS</div>
+        <div class="corner blue">
+          <p class="who">status</p>
+          <p class="fighter" style="font-size:18px;">${bet.status === 'settled' ? (bet.result || 'VOID') : 'OPEN'}</p>
+        </div>
+      </div>
+      ${bet.note ? `<div class="bout-note">"${escapeHtml(bet.note)}"</div>` : ''}
+      ${(bet.challengers && bet.challengers.length)
+        ? `<div class="challenger-list">${bet.challengers.map(c => renderChallengerAdminRow(bet, c)).join('')}</div>`
+        : `<div class="empty-state" style="margin:0 20px 16px;">No backers yet.</div>`}
+      ${renderResultRow(bet)}
+    </div>
+  `).join('');
+
+  boutsEl.querySelectorAll('[data-action="approve"], [data-action="reject"]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const bet = bets.find(b => b.id === btn.dataset.bet);
+      const newStatus = btn.dataset.action === 'approve' ? 'approved' : 'rejected';
+      const updated = bet.challengers.map(c => c.id === btn.dataset.cid ? { ...c, status: newStatus } : c);
+      await db.collection('bets').doc(bet.id).update({ challengers: updated });
+      showToast(`Backer ${newStatus}.`);
+    });
+  });
+
+  boutsEl.querySelectorAll('[data-action="settle"]').forEach(sel => {
+    sel.addEventListener('change', async () => {
+      const betId = sel.dataset.bet;
+      const value = sel.value;
+      await db.collection('bets').doc(betId).update({
+        status: value ? 'settled' : 'open',
+        result: value || null,
+      });
+      showToast(value ? 'Bet settled.' : 'Bet reopened.');
+    });
+  });
+}
+
+function listenBouts() {
+  db.collection('bets').orderBy('createdAt', 'desc').onSnapshot(snap => {
+    const bets = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderBouts(bets);
+  });
+}
+</script>
+</body>
+</html>
