@@ -230,10 +230,15 @@
           return;
         }
         boutsEl.innerHTML = bets
-          .map(
-            (bet, i) => `
+          .map((bet, i) => {
+            const opponentFighter = FIGHTER_OPPONENTS[bet.fighterName];
+            return `
     <div class="bout">
-      <div class="bout-number">BOUT ${String(i + 1).padStart(2, "0")}</div>
+      <div class="bout-number">BOUT ${String(i + 1).padStart(2, "0")}${
+              bet.amount < 10000
+                ? ' <span class="pill rejected">under 10k minimum</span>'
+                : ""
+            }</div>
       <div class="bout-main">
         <div class="corner red">
           <p class="who">${escapeHtml(bet.creatorName)}${
@@ -248,9 +253,9 @@
           <p class="fighter" style="font-size:18px;">${
             bet.status === "settled"
               ? bet.result === "OPPONENT"
-                ? "ተቃራኒ ወገን"
+                ? opponentFighter || "ተቃራኒ ወገን"
                 : bet.result || "ውጤት የለም"
-              : "OPEN"
+              : opponentFighter || "OPEN"
           }</p>
         </div>
       </div>
@@ -259,9 +264,12 @@
       }
       ${renderChallengersAdmin(bet)}
       ${renderResultRow(bet)}
+      <div class="result-row">
+        <button class="btn-reject" data-bet="${bet.id}" data-action="delete">Delete this bet</button>
+      </div>
     </div>
-  `
-          )
+  `;
+          })
           .join("");
 
         boutsEl
@@ -283,6 +291,14 @@
               );
             });
           });
+
+        boutsEl.querySelectorAll('[data-action="delete"]').forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            if (!confirm("Delete this bet permanently? This can't be undone.")) return;
+            await db.collection("bets").doc(btn.dataset.bet).delete();
+            showToast("Bet deleted.");
+          });
+        });
 
         boutsEl.querySelectorAll('[data-action="settle"]').forEach((sel) => {
           sel.addEventListener("change", async () => {

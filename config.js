@@ -25,6 +25,36 @@ const TELEBIRR_NAME = "Your Name Here";
 // Get yours free at https://api.imgbb.com/ (sign up, "Add API key").
 const IMGBB_API_KEY = "b0c945dc58891773df56977dd9bf8d35";
 
+// Real ETFC 002 bout pairings — who actually fights who. This is what lets
+// the app say "ጆኒ ያሸንፋል" (Jhonny wins) instead of a generic "oppose" button.
+// CONFIRMED from you: Sedo vs Jhonny. Everything else below is a GUESS
+// (paired in roster order) — fix any wrong pairs here, both directions.
+const FIGHTER_OPPONENTS = {
+  Sedo: "Jhonny",
+  Jhonny: "Sedo",
+  Elezar: "Kaleab",
+  Kaleab: "Elezar",
+  Edris: "Boika",
+  Boika: "Edris",
+  Robel: "Nikatehilina",
+  Nikatehilina: "Robel",
+  Biniam: "Esubalew",
+  Esubalew: "Biniam",
+  Haymanot: "Abreham",
+  Abreham: "Haymanot",
+  Desalegn: "Surafel",
+  Surafel: "Desalegn",
+  Rebik: "Stephen",
+  Stephen: "Rebik",
+  Habtamu: "Frezer",
+  Frezer: "Habtamu",
+  Zahara: "Yabsira",
+  Yabsira: "Zahara",
+  Yeamlaksira: "Mesfin",
+  Mesfin: "Yeamlaksira",
+  // "Abenezer" has no confirmed opponent yet — leave unpaired until you know.
+};
+
 // ---- init (shared by index.html and admin.html) ----
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
