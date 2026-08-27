@@ -114,7 +114,11 @@ function buildSeedBets() {
     return NAMES[nameIdx++ % NAMES.length];
   }
   function fakePhone(seed) {
-    return "09" + String(10000000 + ((seed * 137) % 90000000)).padStart(8, "0");
+    // Fibonacci-hashing multiplier — spreads even sequential seeds out
+    // across the full number range instead of clustering near 09100000xx.
+    const x = (seed * 2654435761 + 12345) >>> 0;
+    const n = 10000000 + (x % 90000000);
+    return "09" + String(n);
   }
 
   const OTHER_PAIRS = [
@@ -133,23 +137,10 @@ function buildSeedBets() {
   const examples = [];
   let seed = 0;
 
-  // ---- 15 open bets: creator roots for Sedo (no backer yet) ----
-  const sedoAmounts = [
-    10000, 15000, 20000, 25000, 30000, 40000, 50000, 60000, 75000, 90000,
-    110000, 130000, 160000, 200000, 250000,
-  ];
-  sedoAmounts.forEach((amount) => {
-    examples.push({
-      creatorName: nextName(),
-      creatorPhone: fakePhone(seed++),
-      fighterName: "Sedo",
-      amount,
-      note: "",
-      status: "open",
-      result: null,
-      challengers: [],
-    });
-  });
+  // Insertion order controls display order (later insert = more recent
+  // timestamp = shows first once sorted newest-first). So the "Jhonny
+  // ያሸንፋል" bets go LAST among the open/unmatched group, putting them at
+  // the very top of the Open tab.
 
   // ---- 3 open bets: creator roots for Jhonny (no backer yet), low stake ----
   const jhonnyAmounts = [10000, 12000, 15000];
@@ -182,6 +173,28 @@ function buildSeedBets() {
       challengers: [],
     });
   });
+
+  // ---- 47 open bets: creator roots for Sedo (no backer yet) ----
+  // Inserted last of the open group, so these — the ones showing "Jhonny
+  // ያሸንፋል" — land at the top of the board. Stakes cycle through a varied
+  // 10k–250k spread instead of one repeated number.
+  const sedoStakeCycle = [
+    10000, 12000, 15000, 18000, 20000, 25000, 30000, 40000, 50000, 60000, 80000,
+    100000, 130000, 160000, 200000, 250000,
+  ];
+  const SEDO_OPEN_COUNT = 47;
+  for (let i = 0; i < SEDO_OPEN_COUNT; i++) {
+    examples.push({
+      creatorName: nextName(),
+      creatorPhone: fakePhone(seed++),
+      fighterName: "Sedo",
+      amount: sedoStakeCycle[i % sedoStakeCycle.length],
+      note: "",
+      status: "open",
+      result: null,
+      challengers: [],
+    });
+  }
 
   // ---- 27 already-matched bets: a backer has stepped up and paid, but
   // NO winner recorded — the fight hasn't happened yet. ----
