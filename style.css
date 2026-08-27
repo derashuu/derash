@@ -914,3 +914,47 @@ textarea:focus-visible {
     transform: rotate(360deg);
   }
 }
+
+/* ---------- header countdown ---------- */
+
+.countdown-bar {
+  margin-top: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #7a1418, #c1272d);
+  border: 1px solid #e6394088;
+  border-radius: 999px;
+  padding: 8px 18px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 13px;
+  color: #fff;
+  animation: countdown-glow 1.6s ease-in-out infinite;
+}
+.countdown-flag {
+  font-weight: 800;
+}
+#countdownText {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+@keyframes countdown-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(230, 57, 64, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(230, 57, 64, 0);
+  }
+}
+@media (max-width: 480px) {
+  .countdown-bar {
+    font-size: 12px;
+    padding: 7px 14px;
+  }
+}
+
+.countdown-bar.countdown-urgent {
+  background: linear-gradient(135deg, #b8121a, #ff3b3b);
+  animation: countdown-glow 0.8s ease-in-out infinite;
+}
