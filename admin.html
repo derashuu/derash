@@ -223,7 +223,7 @@
   `;
       }
 
-      function renderBouts(bets) {
+function renderBouts(bets) {
         const boutsEl = document.getElementById("bouts");
         if (bets.length === 0) {
           boutsEl.innerHTML = `<div class="empty-state">እስካሁን ውርርድ የለም።</div>`;
@@ -232,13 +232,15 @@
         boutsEl.innerHTML = bets
           .map((bet, i) => {
             const opponentFighter = FIGHTER_OPPONENTS[bet.fighterName];
+            const isPendingCreator = bet.status === "pending_creator_payment";
+            const creatorPayment = bet.creatorPayment;
             return `
     <div class="bout">
-      <div class="bout-number">BOUT ${String(i + 1).padStart(2, "0")}${
+      <div class="bout-number">ፍልሚያ ${String(i + 1).padStart(2, "0")}${
               bet.amount < 10000
-                ? ' <span class="pill rejected">under 10k minimum</span>'
+                ? ' <span class="pill rejected">10k ከታች</span>'
                 : ""
-            }</div>
+          }</div>
       <div class="bout-main">
         <div class="corner red">
           <p class="who">${escapeHtml(bet.creatorName)}${
@@ -249,19 +251,49 @@
         </div>
         <div class="vs-seam">VS</div>
         <div class="corner blue">
-          <p class="who">ውጤት</p>
+          <p class="who">ሁኔታ</p>
           <p class="fighter" style="font-size:18px;">${
             bet.status === "settled"
               ? bet.result === "OPPONENT"
                 ? opponentFighter || "ተቃራኒ ወገን"
                 : bet.result || "ውጤት የለም"
-              : opponentFighter || "OPEN"
+              : isPendingCreator
+              ? "የፈጣሪው ክፍያ በመጠበቅ ላይ"
+              : opponentFighter || "ክፍት"
           }</p>
         </div>
       </div>
       ${
         bet.note ? `<div class="bout-note">"${escapeHtml(bet.note)}"</div>` : ""
       }
+      ${isPendingCreator && creatorPayment ? `
+        <div class="challenger-list">
+          <div class="challenger-row" style="align-items:flex-start;">
+            <div>
+              <div class="name">${escapeHtml(creatorPayment.name)}${
+                creatorPayment.phone
+                  ? ' <span class="contact">' + escapeHtml(creatorPayment.phone) + "</span>"
+                  : ""
+              } <span class="amt">${money(creatorPayment.amount)}</span></div>
+              <div>የፈጣሪው ክፍያ</div>
+              <a class="screenshot-link" href="${
+                creatorPayment.screenshotUrl
+              }" target="_blank" rel="noopener">የክፍያ ስክሪንሾት ይመልከቱ &rarr;</a>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span class="pill ${creatorPayment.status}">${creatorPayment.status}</span>
+              ${
+                creatorPayment.status === "pending"
+                  ? `
+                <button class="btn-approve" data-bet="${bet.id}" data-cid="creator" data-action="approve_creator">Approve</button>
+                <button class="btn-reject" data-bet="${bet.id}" data-cid="creator" data-action="reject_creator">Reject</button>
+              `
+                  : ""
+              }
+            </div>
+          </div>
+        </div>
+      ` : ""}
       ${renderChallengersAdmin(bet)}
       ${renderResultRow(bet)}
       <div class="result-row">
@@ -277,26 +309,42 @@
           .forEach((btn) => {
             btn.addEventListener("click", async () => {
               const bet = bets.find((b) => b.id === btn.dataset.bet);
-              const newStatus =
-                btn.dataset.action === "approve" ? "approved" : "rejected";
+              const action = btn.dataset.action;
+              const cid = btn.dataset.cid;
+
+              if (action === "approve_creator" || action === "reject_creator") {
+                const newStatus = action === "approve_creator" ? "approved" : "rejected";
+                const updateData = {
+                  "creatorPayment.status": newStatus,
+                };
+                if (newStatus === "approved") {
+                  updateData.status = "open";
+                }
+                await db
+                  .collection("bets")
+                  .doc(bet.id)
+                  .update(updateData);
+                showToast(`የፈጣሪው ክፍያ ${newStatus === "approved" ? "ተተባበረ" : "ተወድቋል"}።`);
+                return;
+              }
+
+              const newStatus = action === "approve" ? "approved" : "rejected";
               const updated = bet.challengers.map((c) =>
-                c.id === btn.dataset.cid ? { ...c, status: newStatus } : c
+                c.id === cid ? { ...c, status: newStatus } : c
               );
               await db
                 .collection("bets")
                 .doc(bet.id)
                 .update({ challengers: updated });
-              showToast(
-                `ደጋፊው ${newStatus === "approved" ? "ጸድቋል" : "ውድቅ ተደርጓል"}።`
-              );
+              showToast(`ደጋፊው ${newStatus === "approved" ? "ተተባበረ" : "ተወድቋል"}።`);
             });
           });
 
         boutsEl.querySelectorAll('[data-action="delete"]').forEach((btn) => {
           btn.addEventListener("click", async () => {
-            if (!confirm("Delete this bet permanently? This can't be undone.")) return;
+            if (!confirm("ይህን ውርርድ ለዘላለም ማጥፋት አለብህ? ይህ ማድረግ አይቻልም።")) return;
             await db.collection("bets").doc(btn.dataset.bet).delete();
-            showToast("Bet deleted.");
+            showToast("ውርርድ ተጠፋ።");
           });
         });
 

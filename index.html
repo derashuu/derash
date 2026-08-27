@@ -10,16 +10,16 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <header class="marquee">
+<header class="marquee">
       <div class="event-tag">ETFC 002 &middot; አድዋ ፋይት ናይት</div>
       <h1>ማንን <span>ትደግፋለህ?</span></h1>
       <p>
         የምታምንበትን ተጫዋች ለይ እና ውርርድ ለጥፍ። ሌሎች ደግሞ ተቃራኒውን ወገን ይሸፍናሉ። ክፍያው ከተረጋገጠ በኋላ
-        አድሚኑ ፍልሚያው እንዳለቀ ውጤቱን አረጋግጦ ይከፍላል።
+        አድሚኑ ፍልሚያው እንዳለቀ ውጤቱን አረጋግጦ ይከፈላል።
       </p>
     </header>
 
-    <main class="shell">
+<main class="shell">
       <div class="how-it-works">
         <div class="how-step">
           <div class="num">1</div>
@@ -34,7 +34,7 @@
         <div class="how-step">
           <div class="num">3</div>
           <div class="txt">
-            <b>አድሚኑ ያጠናቅቀዋል</b> — ፍልሚያው ካለቀ በኋላ አድሚኑ አረጋግጦ አሸናፊውን ይከፍላል።
+            <b>አድሚኑ ያጠናቅቀዋል</b> — ፍልሚያው ካለቀ በኋላ አድሚኑ አረጋግጦ አሸናፊውን ይከፈላል።
           </div>
         </div>
       </div>
@@ -74,7 +74,7 @@
           </div>
           <div class="field">
             <label for="cPhone">ስልክ ቁጥርህ</label>
-            <input type="tel" id="cPhone" required placeholder="09XXXXXXXX" />
+            <input type="tel" id="cPhone" required placeholder="0987345678" />
           </div>
           <div class="field">
             <label for="cFighter">የምትደግፈው ተጫዋች</label>
@@ -131,7 +131,7 @@
           </div>
           <div class="field">
             <label for="pPhone">ስልክ ቁጥርህ</label>
-            <input type="tel" id="pPhone" required placeholder="09XXXXXXXX" />
+            <input type="tel" id="pPhone" required placeholder="0912345678" />
           </div>
           <div class="field">
             <label for="pAmount">የላክከው መጠን (ብር)</label>
@@ -278,7 +278,7 @@
           }
         } catch (err) {
           console.error("ensureFightersSeeded failed:", err);
-          showToast("ተጫዋቾችን መጫን አልተቻለም — Firestore ደንቦችን ኮንሶል ላይ (F12) አረጋግጥ።");
+          showToast("Couldn't load fighters — check Firestore rules (see console).");
         }
       }
 
@@ -298,145 +298,228 @@
             },
             (err) => {
               console.error("listenFighters failed:", err);
-              showToast(
-                "ተጫዋቾችን መጫን አልተቻለም — Firestore ደንቦችን ኮንሶል ላይ (F12) አረጋግጥ።"
-              );
+showToast("ተጫዋቾችን መጫን አልተቻለም — Firestore ደንቦችን ኮንሶል ላይ (F12) አረጋግጥ።");
             }
           );
       }
 
       // ---------- one-time example bets (only runs if the board is empty) ----------
-      // Purely illustrative placeholder data so the board doesn't look empty on
-      // first load — safe to delete anytime from the admin page.
+      // Generated demo data — safe to delete anytime from the admin page.
+      // Structure: 30 open bets (10 backing Sedo @ 50k, 10 backing Jhonny at
+      // varied amounts, 10 spread across the other fight-card pairings) and
+      // 30 closed/settled bets (27 mixed + 3 featured 2,000,000 birr bets
+      // pinned to the top of the closed list via their timestamps).
       async function ensureBetsSeeded() {
         try {
           const snap = await db.collection("bets").limit(1).get();
           if (!snap.empty) return;
+
           const placeholderShot =
             "https://placehold.co/500x350?text=Payment+Screenshot";
-          const examples = [
-            {
-              creatorName: "Mekdes",
-              creatorPhone: "0911223344",
+
+          const NAMES = [
+            "Abel",
+            "Mekdes",
+            "Tomas",
+            "Biruk",
+            "Hana",
+            "Kalkidan",
+            "Yonas",
+            "Meron",
+            "Selam",
+            "Dawit",
+            "Ruth",
+            "Nardos",
+            "Bethel",
+            "Kalab",
+            "Naomi",
+            "Samuel",
+            "Sara",
+            "Daniel",
+            "Rahel",
+            "Yosef",
+            "Tigist",
+            "Mikael",
+            "Helen",
+            "Bereket",
+            "Eyerusalem",
+            "Nathnael",
+            "Betelhem",
+            "Amanuel",
+            "Selamawit",
+            "Fikru",
+            "Marta",
+            "Solomon",
+            "Hiwot",
+            "Girma",
+            "Aster",
+            "Tesfaye",
+            "Meskerem",
+            "Wondwosen",
+            "Zeritu",
+            "Alemayehu",
+          ];
+          let nameIdx = 0;
+          function nextName() {
+            return NAMES[nameIdx++ % NAMES.length];
+          }
+          function fakePhone(seed) {
+            return (
+              "09" +
+              String(10000000 + ((seed * 137) % 90000000)).padStart(8, "0")
+            );
+          }
+
+          const OTHER_PAIRS = [
+            ["Elezar", "Kaleab"],
+            ["Edris", "Boika"],
+            ["Robel", "Nikatehilina"],
+            ["Biniam", "Esubalew"],
+            ["Haymanot", "Abreham"],
+            ["Desalegn", "Surafel"],
+            ["Rebik", "Stephen"],
+            ["Habtamu", "Frezer"],
+            ["Zahara", "Yabsira"],
+            ["Yeamlaksira", "Mesfin"],
+          ];
+
+          const examples = [];
+          let seed = 0;
+
+          // ---- 10 open bets: creator roots for Sedo, all at 50,000 birr ----
+          for (let i = 0; i < 10; i++) {
+            examples.push({
+              creatorName: nextName(),
+              creatorPhone: fakePhone(seed++),
               fighterName: "Sedo",
-              amount: 10000,
-              note: "Sedo's cardio wins this in the later rounds.",
-              status: "open",
-              result: null,
-              challengers: [],
-            },
-            {
-              creatorName: "Tomas",
-              creatorPhone: "0922334455",
-              fighterName: "Jhonny",
-              amount: 10000,
+              amount: 50000,
               note: "",
               status: "open",
               result: null,
-              challengers: [
-                {
-                  id: "seed1",
-                  name: "Selam",
-                  phone: "0933445566",
-                  amount: 10000,
-                  screenshotUrl: placeholderShot,
-                  status: "pending",
-                },
-              ],
-            },
-            {
-              creatorName: "Dawit",
-              creatorPhone: "0912121212",
-              fighterName: "Sedo",
-              amount: 15000,
-              note: "Second round finish, no question.",
-              status: "open",
-              result: null,
               challengers: [],
-            },
-            {
-              creatorName: "Ruth",
-              creatorPhone: "0913131313",
+            });
+          }
+
+          // ---- 10 open bets: creator roots for Jhonny, your specified amounts ----
+          const jhonnyAmounts = [
+            10000, 12000, 15000, 15000, 15000, 25000, 50000, 100000, 250000,
+            10000,
+          ];
+          jhonnyAmounts.forEach((amount) => {
+            examples.push({
+              creatorName: nextName(),
+              creatorPhone: fakePhone(seed++),
               fighterName: "Jhonny",
-              amount: 20000,
-              note: "Jhonny takes this by decision.",
-              status: "open",
-              result: null,
-              challengers: [
-                {
-                  id: "seed5",
-                  name: "Nardos",
-                  phone: "0914141414",
-                  amount: 20000,
-                  screenshotUrl: placeholderShot,
-                  status: "approved",
-                },
-              ],
-            },
-            {
-              creatorName: "Biruk",
-              creatorPhone: "0944556677",
-              fighterName: "Elezar",
-              amount: 12000,
-              note: "Kaleab has no answer for this.",
-              status: "open",
-              result: null,
-              challengers: [
-                {
-                  id: "seed2",
-                  name: "Hana",
-                  phone: "0955667788",
-                  amount: 12000,
-                  screenshotUrl: placeholderShot,
-                  status: "approved",
-                },
-              ],
-            },
-            {
-              creatorName: "Abel",
-              creatorPhone: "0966778899",
-              fighterName: "Boika",
-              amount: 10000,
+              amount,
               note: "",
               status: "open",
               result: null,
-              challengers: [
-                {
-                  id: "seed3",
-                  name: "Kalkidan",
-                  phone: "0977889900",
-                  amount: 10000,
-                  screenshotUrl: placeholderShot,
-                  status: "rejected",
-                },
-              ],
-            },
-            {
-              creatorName: "Yonas",
-              creatorPhone: "0900112233",
-              fighterName: "Habtamu",
-              amount: 15000,
-              note: "Called it before the card even dropped.",
+              challengers: [],
+            });
+          });
+
+          // ---- 10 open bets: one per remaining fight-card pairing ----
+          const otherAmounts = [
+            10000, 15000, 20000, 12000, 30000, 10000, 18000, 22000, 10000,
+            40000,
+          ];
+          OTHER_PAIRS.forEach(([a, b], idx) => {
+            examples.push({
+              creatorName: nextName(),
+              creatorPhone: fakePhone(seed++),
+              fighterName: idx % 2 === 0 ? a : b,
+              amount: otherAmounts[idx],
+              note: "",
+              status: "open",
+              result: null,
+              challengers: [],
+            });
+          });
+
+          // ---- 27 closed/settled bets, mixed fighters, amounts, and outcomes ----
+          const closedAmounts = [
+            10000, 12000, 15000, 18000, 20000, 25000, 10000, 30000, 15000,
+            40000, 10000, 50000, 12000, 10000, 60000, 15000, 10000, 75000,
+            20000, 10000, 30000, 10000, 15000, 100000, 10000, 20000, 10000,
+          ];
+          for (let i = 0; i < 27; i++) {
+            const pair =
+              i % 2 === 0
+                ? ["Sedo", "Jhonny"]
+                : OTHER_PAIRS[i % OTHER_PAIRS.length];
+            const creatorFighter = pair[0];
+            const creatorWon = i % 3 !== 0;
+            examples.push({
+              creatorName: nextName(),
+              creatorPhone: fakePhone(seed++),
+              fighterName: creatorFighter,
+              amount: closedAmounts[i],
+              note: "",
               status: "settled",
-              result: "Habtamu",
+              result: creatorWon ? creatorFighter : "OPPONENT",
               challengers: [
                 {
-                  id: "seed4",
-                  name: "Meron",
-                  phone: "0911998877",
-                  amount: 15000,
+                  id: `seedc${i}`,
+                  name: nextName(),
+                  phone: fakePhone(seed++),
+                  amount: closedAmounts[i],
                   screenshotUrl: placeholderShot,
                   status: "approved",
                 },
               ],
+            });
+          }
+
+          // ---- 3 featured closed bets pinned to the top: 2,000,000 birr each ----
+          const featured = [
+            { creator: "Janny", fighter: "Sedo", opponent: "Gebru", won: true },
+            {
+              creator: "Gebru",
+              fighter: "Jhonny",
+              opponent: "Jossy",
+              won: true,
+            },
+            {
+              creator: "Jossy",
+              fighter: "Sedo",
+              opponent: "Janny",
+              won: false,
             },
           ];
+          featured.forEach((f) => {
+            examples.push({
+              creatorName: f.creator,
+              creatorPhone: fakePhone(seed++),
+              fighterName: f.fighter,
+              amount: 2000000,
+              note: "",
+              status: "settled",
+              result: f.won ? f.fighter : "OPPONENT",
+              challengers: [
+                {
+                  id: `seedtop_${f.creator}`,
+                  name: f.opponent,
+                  phone: fakePhone(seed++),
+                  amount: 2000000,
+                  screenshotUrl: placeholderShot,
+                  status: "approved",
+                },
+              ],
+            });
+          });
+
+          // Explicit, increasing timestamps (instead of serverTimestamp) so
+          // the 3 featured bets — added last — land at the very top of the
+          // closed list once sorted newest-first.
+          const baseTime = Date.now() - examples.length * 60000;
           const batch = db.batch();
-          examples.forEach((ex) => {
+          examples.forEach((ex, idx) => {
             const ref = db.collection("bets").doc();
             batch.set(ref, {
               ...ex,
-              createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+              createdAt: firebase.firestore.Timestamp.fromMillis(
+                baseTime + idx * 60000
+              ),
             });
           });
           await batch.commit();
@@ -503,7 +586,7 @@
         return bet.challengers && bet.challengers.length > 0;
       }
 
-      function renderBoutCard(bet, i) {
+function renderBoutCard(bet, i) {
         const opponent = activeChallenger(bet);
         const opponentFighter = FIGHTER_OPPONENTS[bet.fighterName] || null;
 
@@ -536,8 +619,8 @@
                    opponentFighter ? escapeHtml(opponentFighter) : "ተቃራኒ ወገን"
                  }</p>
                  <span class="pill ${opponent.status}">${
-                  opponent.status
-                }</span>`
+                   opponent.status
+                 }</span>`
               : `<p class="who">${
                   opponentFighter ? "ገና ያልተደገፈ" : "ገና ያልተሸፈነ"
                 }</p>
@@ -556,10 +639,16 @@
         }">${statusLabel(bet)}</span>
         ${
           bet.status === "open" && !isMatched(bet)
-            ? `<button class="btn btn-primary" data-bet="${bet.id}" data-action="back">${
+            ? `<button class="btn btn-primary" data-bet="${
+                bet.id
+              }" data-action="back">${
                 opponentFighter
-                  ? escapeHtml(opponentFighter) + " ያሸንፋል — " + money(bet.amount)
-                  : escapeHtml(bet.fighterName) + "ን ተቃወም — " + money(bet.amount)
+                  ? escapeHtml(opponentFighter) +
+                    " ያሸንፋል — " +
+                    money(bet.amount)
+                  : escapeHtml(bet.fighterName) +
+                    "ን ተቃወም — " +
+                    money(bet.amount)
               }</button>`
             : bet.status === "open" && isMatched(bet)
             ? `<span class="status-badge filled">ተመሳክሯል — ውጤት በመጠበቅ ላይ</span>`
@@ -600,13 +689,18 @@
               const bet = bets.find((b) => b.id === btn.dataset.bet);
               currentBoutForPay = bet;
               const opponentFighter = FIGHTER_OPPONENTS[bet.fighterName];
-              document.getElementById("payContext").textContent = opponentFighter
-                ? `${escapeHtml(opponentFighter)} ያሸንፋል ብለህ የምታምን ከሆነ ሙሉ ${money(
-                    bet.amount
-                  )} ላክ (1 v 1 ውርርድ ነው)።`
-                : `${maskName(bet.creatorName)} በ${bet.fighterName} ላይ የተወራረደውን ትቃወማለህ — ሙሉ ${money(
-                    bet.amount
-                  )} መላክ አለብህ (1 v 1 ውርርድ ነው)።`;
+              document.getElementById("payContext").textContent =
+                opponentFighter
+                  ? `${escapeHtml(
+                      opponentFighter
+                    )} ያሸንፋል ብለህ የምታምን ከሆነ ሙሉ ${money(
+                      bet.amount
+                    )} ላክ (1 v 1 ውርርድ ነው)።`
+                  : `${maskName(bet.creatorName)} በ${
+                      bet.fighterName
+                    } ላይ የተወራረደውን ትቃወማለህ — ሙሉ ${money(
+                      bet.amount
+                    )} መላክ አለብህ (1 v 1 ውርርድ ነው)።`;
               const amountInput = document.getElementById("pAmount");
               amountInput.value = bet.amount;
               amountInput.readOnly = true;
@@ -638,6 +732,8 @@
       }
 
       // ---------- create bet ----------
+      let pendingCreatorBet = null;
+
       document
         .getElementById("openCreate")
         .addEventListener("click", () => openModal("createBackdrop"));
@@ -657,7 +753,7 @@
           const note = document.getElementById("cNote").value.trim();
 
           if (amount < 10000) {
-            showToast("ዝቅተኛው የውርርድ መጠን 10,000 ብር ነው።");
+            showToast("Minimum bet amount is 10,000 ETB.");
             return;
           }
 
@@ -665,21 +761,32 @@
             await db.collection("fighters").add({ name: customFighter });
           }
 
-          await db.collection("bets").add({
+          // Store bet data temporarily, will save after payment
+          pendingCreatorBet = {
             creatorName: name,
             creatorPhone: phone,
             fighterName: fighter,
             amount,
             note,
-            status: "open",
+            status: "pending_creator_payment",
             result: null,
             challengers: [],
+            creatorPayment: null,
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-          });
+          };
 
           e.target.reset();
           closeModal("createBackdrop");
-          showToast("ውርርድህ በሰሌዳው ላይ ተለጥፏል።");
+
+          // Open payment modal for creator
+          document.getElementById("payContext").textContent = `አንተ ${fighter} ላይ ትደግፋለህ — ገንዘብ ${money(amount)}።`;
+          document.getElementById("pAmount").value = amount;
+          document.getElementById("pAmount").readOnly = true;
+          document.getElementById("telebirrNum").textContent = TELEBIRR_NUMBER;
+          document.getElementById("telebirrName").textContent = TELEBIRR_NAME;
+          document.getElementById("pName").value = name;
+          document.getElementById("pPhone").value = phone;
+          openModal("payBackdrop");
         });
 
       // ---------- upload screenshot to ImgBB ----------
@@ -710,6 +817,45 @@
           const phone = document.getElementById("pPhone").value.trim();
           const amount = Number(document.getElementById("pAmount").value);
           const file = document.getElementById("pShot").files[0];
+
+          // Creator payment flow
+          if (pendingCreatorBet && file) {
+            submitBtn.textContent = "በመላክ ላይ...";
+            submitBtn.disabled = true;
+
+            try {
+              const url = await uploadScreenshot(file);
+
+              const creatorPayment = {
+                name,
+                phone,
+                amount,
+                screenshotUrl: url,
+                status: "pending",
+              };
+
+              const betData = {
+                ...pendingCreatorBet,
+                creatorPayment,
+              };
+
+              await db.collection("bets").add(betData);
+
+              pendingCreatorBet = null;
+              e.target.reset();
+              closeModal("payBackdrop");
+              showToast("ውርርድ ተፈጥሯል — አድሚኑ ክፍያህን እስኪያረጋግጥ ጠብቅ።");
+            } catch (err) {
+              console.error(err);
+              showToast("የሆነ ችግር ተፈጥሯል። እንደገና ሞክር።");
+            } finally {
+              submitBtn.textContent = "ለግምገማ አስገባ";
+              submitBtn.disabled = false;
+            }
+            return;
+          }
+
+          // Challenger payment flow
           if (!currentBoutForPay || !file) return;
 
           if (isMatched(currentBoutForPay)) {
@@ -736,8 +882,6 @@
               status: "pending",
             };
 
-            // 1v1: keep any past rejected attempts for history, and add
-            // this one as the new (and only) active opponent.
             const existing = currentBoutForPay.challengers || [];
 
             await db
