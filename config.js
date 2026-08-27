@@ -17,8 +17,8 @@ const firebaseConfig = {
 const ADMIN_PASSCODE = "abcde12345";
 
 // Telebirr number shown to users when they need to pay to back a fighter.
-const TELEBIRR_NUMBER = "09XXXXXXXX";
-const TELEBIRR_NAME = "Your Name Here";
+const TELEBIRR_NUMBER = "0990608479";
+const TELEBIRR_NAME = "ZEMENU";
 
 // ImgBB API key — used to host payment screenshots (free, no billing account
 // needed, unlike Firebase Storage which now requires the paid Blaze plan).
