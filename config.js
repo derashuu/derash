@@ -283,10 +283,9 @@ function buildSeedBets() {
   }
   const openExamples = interleave([jhonnyGroup, sedoGroup, otherGroup]);
 
-  const examples = [...openExamples];
-
   // ---- 27 already-matched bets: a backer has stepped up and paid, but
   // NO winner recorded — the fight hasn't happened yet. ----
+  const closedGroup = [];
   const closedAmounts = [
     10000, 12000, 15000, 18000, 20000, 25000, 10000, 30000, 15000, 40000, 10000,
     50000, 12000, 10000, 60000, 15000, 10000, 75000, 20000, 10000, 30000, 10000,
@@ -296,7 +295,7 @@ function buildSeedBets() {
     const pair =
       i % 2 === 0 ? ["Sedo", "Jhonny"] : OTHER_PAIRS[i % OTHER_PAIRS.length];
     const creatorFighter = pair[0];
-    examples.push({
+    closedGroup.push({
       creatorName: nextName(),
       creatorPhone: fakePhone(seed++),
       fighterName: creatorFighter,
@@ -317,9 +316,10 @@ function buildSeedBets() {
     });
   }
 
-  // ---- 1 featured matched bet pinned to the top: 2,000,000 birr,
-  // Jani Gebru vs Jossy. No result — fight hasn't happened yet. ----
-  examples.push({
+  // ---- 1 featured matched bet: 2,000,000 birr, Jani Gebru vs Jossy.
+  // No result — fight hasn't happened yet. Pushed last within the CLOSED
+  // group specifically, so it's the topmost item of the Closed tab. ----
+  closedGroup.push({
     creatorName: "ጃኒ ገብሩ",
     creatorPhone: fakePhone(seed++),
     fighterName: "Sedo",
@@ -338,6 +338,16 @@ function buildSeedBets() {
       },
     ],
   });
+
+  // ---- final order: closed group FIRST (oldest timestamps), open group
+  // LAST (newest timestamps). Tabs on the public site filter open vs
+  // closed separately so this doesn't affect either tab's internal order —
+  // but it DOES fix admin.html, which shows one single combined list with
+  // no tab split. Putting open bets last means the Jhonny/Sedo bets (at
+  // the tail of the interleaved open group) get the most recent
+  // timestamps of ALL bets, so they show at the very top of admin's list
+  // too, not just the public Open tab. ----
+  const examples = [...closedGroup, ...openExamples];
 
   return examples;
 }
