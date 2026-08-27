@@ -207,10 +207,39 @@ function buildSeedBets() {
 
   let seed = 0;
 
+  // Names for the Sedo-backing crowd specifically.
+  const MUSLIM_NAMES = [
+    "Ahmed",
+    "Mohammed",
+    "Redwan",
+    "Kedir",
+    "Nuru",
+    "Seid",
+    "Jemal",
+    "Yusuf",
+    "Ibrahim",
+    "Abdulkadir",
+    "Kemal",
+    "Nasir",
+    "Hamza",
+    "Bilal",
+    "Adem",
+    "Mustefa",
+    "Hassen",
+    "Hussein",
+    "Zakaria",
+    "Siraj",
+  ];
+  let muslimIdx = 0;
+  function nextMuslimName() {
+    return MUSLIM_NAMES[muslimIdx++ % MUSLIM_NAMES.length];
+  }
+
   // ---- build each fighter-group as its OWN small array first ----
-  function makeGroup(fighterName, amounts) {
+  function makeGroup(fighterName, amounts, nameFn) {
+    const pickName = nameFn || nextName;
     return amounts.map((amount) => ({
-      creatorName: nextName(),
+      creatorName: pickName(),
       creatorPhone: fakePhone(seed++),
       fighterName,
       amount,
@@ -231,24 +260,28 @@ function buildSeedBets() {
   );
 
   // Sedo-backers ("Jhonny ያሸንፋል" opponent label) — 15 bets, 10k up to 700k,
-  // at least 8 under 80k and 5 at 100k+.
-  const sedoGroup = makeGroup("Sedo", [
-    10000,
-    15000,
-    20000,
-    25000,
-    35000,
-    40000,
-    60000,
-    75000, // 8 under 80k
-    100000,
-    150000,
-    250000,
-    400000,
-    700000, // 5 at 100k+
-    18000,
-    55000, // two more for a round 15
-  ]);
+  // at least 8 under 80k and 5 at 100k+. Named from the Muslim name pool.
+  const sedoGroup = makeGroup(
+    "Sedo",
+    [
+      10000,
+      15000,
+      20000,
+      25000,
+      35000,
+      40000,
+      60000,
+      75000, // 8 under 80k
+      100000,
+      150000,
+      250000,
+      400000,
+      700000, // 5 at 100k+
+      18000,
+      55000, // two more for a round 15
+    ],
+    nextMuslimName
+  );
 
   // One bet per remaining fight-card pairing.
   const otherGroup = OTHER_PAIRS.map(([a, b], idx) => {
