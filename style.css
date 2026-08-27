@@ -915,42 +915,57 @@ textarea:focus-visible {
   }
 }
 
-/* ---------- header countdown ---------- */
+/* ---------- header countdown (big promo banner) ---------- */
 
 .countdown-bar {
-  margin-top: 16px;
-  display: inline-flex;
+  margin-top: 18px;
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
   background: linear-gradient(135deg, #7a1418, #c1272d);
-  border: 1px solid #e6394088;
-  border-radius: 999px;
-  padding: 8px 18px;
+  border: 2px solid #ff5a5a;
+  border-radius: 14px;
+  padding: 18px 24px;
   font-family: "JetBrains Mono", monospace;
-  font-size: 13px;
   color: #fff;
   animation: countdown-glow 1.6s ease-in-out infinite;
+  box-sizing: border-box;
 }
 .countdown-flag {
-  font-weight: 800;
+  font-weight: 900;
+  font-size: 22px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 #countdownText {
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 20px;
   letter-spacing: 0.02em;
 }
 @keyframes countdown-glow {
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgba(230, 57, 64, 0.5);
+    box-shadow: 0 0 0 0 rgba(230, 57, 64, 0.55);
   }
   50% {
-    box-shadow: 0 0 0 6px rgba(230, 57, 64, 0);
+    box-shadow: 0 0 0 10px rgba(230, 57, 64, 0);
   }
 }
-@media (max-width: 480px) {
+@media (max-width: 640px) {
   .countdown-bar {
-    font-size: 12px;
-    padding: 7px 14px;
+    flex-direction: column;
+    gap: 6px;
+    padding: 16px 18px;
+  }
+  .countdown-flag {
+    font-size: 19px;
+  }
+  #countdownText {
+    font-size: 17px;
+    text-align: center;
   }
 }
 
