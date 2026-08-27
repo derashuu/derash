@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-<header class="marquee">
+    <header class="marquee">
       <div class="event-tag">ETFC 002 &middot; አድዋ ፋይት ናይት</div>
       <h1>ማንን <span>ትደግፋለህ?</span></h1>
       <p>
@@ -19,7 +19,7 @@
       </p>
     </header>
 
-<main class="shell">
+    <main class="shell">
       <div class="how-it-works">
         <div class="how-step">
           <div class="num">1</div>
@@ -278,7 +278,9 @@
           }
         } catch (err) {
           console.error("ensureFightersSeeded failed:", err);
-          showToast("Couldn't load fighters — check Firestore rules (see console).");
+          showToast(
+            "Couldn't load fighters — check Firestore rules (see console)."
+          );
         }
       }
 
@@ -298,7 +300,9 @@
             },
             (err) => {
               console.error("listenFighters failed:", err);
-showToast("ተጫዋቾችን መጫን አልተቻለም — Firestore ደንቦችን ኮንሶል ላይ (F12) አረጋግጥ።");
+              showToast(
+                "ተጫዋቾችን መጫን አልተቻለም — Firestore ደንቦችን ኮንሶል ላይ (F12) አረጋግጥ።"
+              );
             }
           );
       }
@@ -313,216 +317,7 @@ showToast("ተጫዋቾችን መጫን አልተቻለም — Firestore ደን�
         try {
           const snap = await db.collection("bets").limit(1).get();
           if (!snap.empty) return;
-
-          const placeholderShot =
-            "https://placehold.co/500x350?text=Payment+Screenshot";
-
-          const NAMES = [
-            "Abel",
-            "Mekdes",
-            "Tomas",
-            "Biruk",
-            "Hana",
-            "Kalkidan",
-            "Yonas",
-            "Meron",
-            "Selam",
-            "Dawit",
-            "Ruth",
-            "Nardos",
-            "Bethel",
-            "Kalab",
-            "Naomi",
-            "Samuel",
-            "Sara",
-            "Daniel",
-            "Rahel",
-            "Yosef",
-            "Tigist",
-            "Mikael",
-            "Helen",
-            "Bereket",
-            "Eyerusalem",
-            "Nathnael",
-            "Betelhem",
-            "Amanuel",
-            "Selamawit",
-            "Fikru",
-            "Marta",
-            "Solomon",
-            "Hiwot",
-            "Girma",
-            "Aster",
-            "Tesfaye",
-            "Meskerem",
-            "Wondwosen",
-            "Zeritu",
-            "Alemayehu",
-          ];
-          let nameIdx = 0;
-          function nextName() {
-            return NAMES[nameIdx++ % NAMES.length];
-          }
-          function fakePhone(seed) {
-            return (
-              "09" +
-              String(10000000 + ((seed * 137) % 90000000)).padStart(8, "0")
-            );
-          }
-
-          const OTHER_PAIRS = [
-            ["Elezar", "Kaleab"],
-            ["Edris", "Boika"],
-            ["Robel", "Nikatehilina"],
-            ["Biniam", "Esubalew"],
-            ["Haymanot", "Abreham"],
-            ["Desalegn", "Surafel"],
-            ["Rebik", "Stephen"],
-            ["Habtamu", "Frezer"],
-            ["Zahara", "Yabsira"],
-            ["Yeamlaksira", "Mesfin"],
-          ];
-
-          const examples = [];
-          let seed = 0;
-
-          // ---- 10 open bets: creator roots for Sedo, all at 50,000 birr ----
-          for (let i = 0; i < 10; i++) {
-            examples.push({
-              creatorName: nextName(),
-              creatorPhone: fakePhone(seed++),
-              fighterName: "Sedo",
-              amount: 50000,
-              note: "",
-              status: "open",
-              result: null,
-              challengers: [],
-            });
-          }
-
-          // ---- 10 open bets: creator roots for Jhonny, your specified amounts ----
-          const jhonnyAmounts = [
-            10000, 12000, 15000, 15000, 15000, 25000, 50000, 100000, 250000,
-            10000,
-          ];
-          jhonnyAmounts.forEach((amount) => {
-            examples.push({
-              creatorName: nextName(),
-              creatorPhone: fakePhone(seed++),
-              fighterName: "Jhonny",
-              amount,
-              note: "",
-              status: "open",
-              result: null,
-              challengers: [],
-            });
-          });
-
-          // ---- 10 open bets: one per remaining fight-card pairing ----
-          const otherAmounts = [
-            10000, 15000, 20000, 12000, 30000, 10000, 18000, 22000, 10000,
-            40000,
-          ];
-          OTHER_PAIRS.forEach(([a, b], idx) => {
-            examples.push({
-              creatorName: nextName(),
-              creatorPhone: fakePhone(seed++),
-              fighterName: idx % 2 === 0 ? a : b,
-              amount: otherAmounts[idx],
-              note: "",
-              status: "open",
-              result: null,
-              challengers: [],
-            });
-          });
-
-          // ---- 27 closed/settled bets, mixed fighters, amounts, and outcomes ----
-          const closedAmounts = [
-            10000, 12000, 15000, 18000, 20000, 25000, 10000, 30000, 15000,
-            40000, 10000, 50000, 12000, 10000, 60000, 15000, 10000, 75000,
-            20000, 10000, 30000, 10000, 15000, 100000, 10000, 20000, 10000,
-          ];
-          for (let i = 0; i < 27; i++) {
-            const pair =
-              i % 2 === 0
-                ? ["Sedo", "Jhonny"]
-                : OTHER_PAIRS[i % OTHER_PAIRS.length];
-            const creatorFighter = pair[0];
-            const creatorWon = i % 3 !== 0;
-            examples.push({
-              creatorName: nextName(),
-              creatorPhone: fakePhone(seed++),
-              fighterName: creatorFighter,
-              amount: closedAmounts[i],
-              note: "",
-              status: "settled",
-              result: creatorWon ? creatorFighter : "OPPONENT",
-              challengers: [
-                {
-                  id: `seedc${i}`,
-                  name: nextName(),
-                  phone: fakePhone(seed++),
-                  amount: closedAmounts[i],
-                  screenshotUrl: placeholderShot,
-                  status: "approved",
-                },
-              ],
-            });
-          }
-
-          // ---- 3 featured closed bets pinned to the top: 2,000,000 birr each ----
-          const featured = [
-            { creator: "Janny", fighter: "Sedo", opponent: "Gebru", won: true },
-            {
-              creator: "Gebru",
-              fighter: "Jhonny",
-              opponent: "Jossy",
-              won: true,
-            },
-            {
-              creator: "Jossy",
-              fighter: "Sedo",
-              opponent: "Janny",
-              won: false,
-            },
-          ];
-          featured.forEach((f) => {
-            examples.push({
-              creatorName: f.creator,
-              creatorPhone: fakePhone(seed++),
-              fighterName: f.fighter,
-              amount: 2000000,
-              note: "",
-              status: "settled",
-              result: f.won ? f.fighter : "OPPONENT",
-              challengers: [
-                {
-                  id: `seedtop_${f.creator}`,
-                  name: f.opponent,
-                  phone: fakePhone(seed++),
-                  amount: 2000000,
-                  screenshotUrl: placeholderShot,
-                  status: "approved",
-                },
-              ],
-            });
-          });
-
-          // Explicit, increasing timestamps (instead of serverTimestamp) so
-          // the 3 featured bets — added last — land at the very top of the
-          // closed list once sorted newest-first.
-          const baseTime = Date.now() - examples.length * 60000;
-          const batch = db.batch();
-          examples.forEach((ex, idx) => {
-            const ref = db.collection("bets").doc();
-            batch.set(ref, {
-              ...ex,
-              createdAt: firebase.firestore.Timestamp.fromMillis(
-                baseTime + idx * 60000
-              ),
-            });
-          });
-          await batch.commit();
+          await writeSeedBets();
         } catch (err) {
           console.error("ensureBetsSeeded failed:", err);
         }
@@ -586,7 +381,7 @@ showToast("ተጫዋቾችን መጫን አልተቻለም — Firestore ደን�
         return bet.challengers && bet.challengers.length > 0;
       }
 
-function renderBoutCard(bet, i) {
+      function renderBoutCard(bet, i) {
         const opponent = activeChallenger(bet);
         const opponentFighter = FIGHTER_OPPONENTS[bet.fighterName] || null;
 
@@ -619,8 +414,8 @@ function renderBoutCard(bet, i) {
                    opponentFighter ? escapeHtml(opponentFighter) : "ተቃራኒ ወገን"
                  }</p>
                  <span class="pill ${opponent.status}">${
-                   opponent.status
-                 }</span>`
+                  opponent.status
+                }</span>`
               : `<p class="who">${
                   opponentFighter ? "ገና ያልተደገፈ" : "ገና ያልተሸፈነ"
                 }</p>
@@ -779,7 +574,9 @@ function renderBoutCard(bet, i) {
           closeModal("createBackdrop");
 
           // Open payment modal for creator
-          document.getElementById("payContext").textContent = `አንተ ${fighter} ላይ ትደግፋለህ — ገንዘብ ${money(amount)}።`;
+          document.getElementById(
+            "payContext"
+          ).textContent = `አንተ ${fighter} ላይ ትደግፋለህ — ገንዘብ ${money(amount)}።`;
           document.getElementById("pAmount").value = amount;
           document.getElementById("pAmount").readOnly = true;
           document.getElementById("telebirrNum").textContent = TELEBIRR_NUMBER;
@@ -863,7 +660,9 @@ function renderBoutCard(bet, i) {
             return;
           }
           if (amount !== currentBoutForPay.amount) {
-            showToast(`ሙሉ ${money(currentBoutForPay.amount)} መላክ አለብህ — 1 v 1 ውርርድ ነው።`);
+            showToast(
+              `ሙሉ ${money(currentBoutForPay.amount)} መላክ አለብህ — 1 v 1 ውርርድ ነው።`
+            );
             return;
           }
 

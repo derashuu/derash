@@ -56,7 +56,23 @@
           <button type="submit" class="btn btn-ghost">ጨምር</button>
         </form>
 
-        <p class="section-label">ሁሉም ውርርዶች</p>
+        <p
+          class="section-label"
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+          "
+        >
+          ሁሉም ውርርዶች
+          <button
+            id="resetDemoBtn"
+            class="btn btn-ghost"
+            style="font-size: 11px; padding: 6px 12px"
+          >
+            🔄 ናሙና ዳግም ጫን
+          </button>
+        </p>
         <div id="bouts"></div>
       </main>
     </div>
@@ -125,6 +141,25 @@
             if (!name) return;
             await db.collection("fighters").add({ name });
             input.value = "";
+          });
+
+        document
+          .getElementById("resetDemoBtn")
+          .addEventListener("click", async () => {
+            if (
+              !confirm(
+                "ይህ ሁሉንም ውርርዶች ያጠፋና በአዲስ ናሙና ይተካል። ይህን ማድረግ አትችልም — እርግጠኛ ነህ?"
+              )
+            )
+              return;
+            showToast("በመጫን ላይ...");
+            try {
+              await resetBetsToSeed();
+              showToast("የናሙና ውርርዶች ዳግም ተጭነዋል።");
+            } catch (err) {
+              console.error("resetBetsToSeed failed:", err);
+              showToast("ስህተት ተፈጥሯል — ኮንሶልውን (F12) አረጋግጥ።");
+            }
           });
       }
 
@@ -223,7 +258,7 @@
   `;
       }
 
-function renderBouts(bets) {
+      function renderBouts(bets) {
         const boutsEl = document.getElementById("bouts");
         if (bets.length === 0) {
           boutsEl.innerHTML = `<div class="empty-state">እስካሁን ውርርድ የለም።</div>`;
@@ -240,7 +275,7 @@ function renderBouts(bets) {
               bet.amount < 10000
                 ? ' <span class="pill rejected">10k ከታች</span>'
                 : ""
-          }</div>
+            }</div>
       <div class="bout-main">
         <div class="corner red">
           <p class="who">${escapeHtml(bet.creatorName)}${
@@ -266,22 +301,28 @@ function renderBouts(bets) {
       ${
         bet.note ? `<div class="bout-note">"${escapeHtml(bet.note)}"</div>` : ""
       }
-      ${isPendingCreator && creatorPayment ? `
+      ${
+        isPendingCreator && creatorPayment
+          ? `
         <div class="challenger-list">
           <div class="challenger-row" style="align-items:flex-start;">
             <div>
               <div class="name">${escapeHtml(creatorPayment.name)}${
-                creatorPayment.phone
-                  ? ' <span class="contact">' + escapeHtml(creatorPayment.phone) + "</span>"
-                  : ""
-              } <span class="amt">${money(creatorPayment.amount)}</span></div>
+              creatorPayment.phone
+                ? ' <span class="contact">' +
+                  escapeHtml(creatorPayment.phone) +
+                  "</span>"
+                : ""
+            } <span class="amt">${money(creatorPayment.amount)}</span></div>
               <div>የፈጣሪው ክፍያ</div>
               <a class="screenshot-link" href="${
                 creatorPayment.screenshotUrl
               }" target="_blank" rel="noopener">የክፍያ ስክሪንሾት ይመልከቱ &rarr;</a>
             </div>
             <div style="display:flex; align-items:center; gap:8px;">
-              <span class="pill ${creatorPayment.status}">${creatorPayment.status}</span>
+              <span class="pill ${creatorPayment.status}">${
+              creatorPayment.status
+            }</span>
               ${
                 creatorPayment.status === "pending"
                   ? `
@@ -293,11 +334,58 @@ function renderBouts(bets) {
             </div>
           </div>
         </div>
-      ` : ""}
+      `
+          : ""
+      }
       ${renderChallengersAdmin(bet)}
       ${renderResultRow(bet)}
+      <div class="edit-panel" id="edit-${
+        bet.id
+      }" style="display:none; padding:14px 20px; border-top:1px solid var(--line);">
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px;">
+          <div style="flex:1; min-width:140px;">
+            <label style="font-size:11px; color:var(--smoke); display:block; margin-bottom:4px;">የፈጣሪ ስም</label>
+            <input type="text" data-edit="creatorName" value="${escapeHtml(
+              bet.creatorName
+            )}" style="width:100%; background:var(--surface); border:1px solid var(--line); border-radius:4px; padding:8px 10px; color:var(--bone);" />
+          </div>
+          <div style="flex:1; min-width:140px;">
+            <label style="font-size:11px; color:var(--smoke); display:block; margin-bottom:4px;">ስልክ ቁጥር</label>
+            <input type="text" data-edit="creatorPhone" value="${escapeHtml(
+              bet.creatorPhone || ""
+            )}" style="width:100%; background:var(--surface); border:1px solid var(--line); border-radius:4px; padding:8px 10px; color:var(--bone);" />
+          </div>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;">
+          <div style="flex:1; min-width:140px;">
+            <label style="font-size:11px; color:var(--smoke); display:block; margin-bottom:4px;">የሚደግፈው ተጫዋች</label>
+            <input type="text" data-edit="fighterName" value="${escapeHtml(
+              bet.fighterName
+            )}" style="width:100%; background:var(--surface); border:1px solid var(--line); border-radius:4px; padding:8px 10px; color:var(--bone);" />
+          </div>
+          <div style="flex:1; min-width:140px;">
+            <label style="font-size:11px; color:var(--smoke); display:block; margin-bottom:4px;">የውርርድ መጠን (ብር)</label>
+            <input type="number" data-edit="amount" min="${MIN_BET}" value="${
+              bet.amount
+            }" style="width:100%; background:var(--surface); border:1px solid var(--line); border-radius:4px; padding:8px 10px; color:var(--bone);" />
+          </div>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-primary" data-bet="${
+            bet.id
+          }" data-action="save-edit" style="font-size:12px; padding:8px 14px;">አስቀምጥ</button>
+          <button class="btn btn-ghost" data-bet="${
+            bet.id
+          }" data-action="cancel-edit" style="font-size:12px; padding:8px 14px;">ሰርዝ</button>
+        </div>
+      </div>
       <div class="result-row">
-        <button class="btn-reject" data-bet="${bet.id}" data-action="delete">Delete this bet</button>
+        <button class="btn-ghost" data-bet="${
+          bet.id
+        }" data-action="toggle-edit" style="font-size:12px; padding:8px 14px; border:1px solid var(--line); border-radius:4px; color:var(--bone); background:transparent; cursor:pointer;">አርትዕ</button>
+        <button class="btn-reject" data-bet="${
+          bet.id
+        }" data-action="delete">Delete this bet</button>
       </div>
     </div>
   `;
@@ -313,18 +401,18 @@ function renderBouts(bets) {
               const cid = btn.dataset.cid;
 
               if (action === "approve_creator" || action === "reject_creator") {
-                const newStatus = action === "approve_creator" ? "approved" : "rejected";
+                const newStatus =
+                  action === "approve_creator" ? "approved" : "rejected";
                 const updateData = {
                   "creatorPayment.status": newStatus,
                 };
                 if (newStatus === "approved") {
                   updateData.status = "open";
                 }
-                await db
-                  .collection("bets")
-                  .doc(bet.id)
-                  .update(updateData);
-                showToast(`የፈጣሪው ክፍያ ${newStatus === "approved" ? "ተተባበረ" : "ተወድቋል"}።`);
+                await db.collection("bets").doc(bet.id).update(updateData);
+                showToast(
+                  `የፈጣሪው ክፍያ ${newStatus === "approved" ? "ተተባበረ" : "ተወድቋል"}።`
+                );
                 return;
               }
 
@@ -336,7 +424,9 @@ function renderBouts(bets) {
                 .collection("bets")
                 .doc(bet.id)
                 .update({ challengers: updated });
-              showToast(`ደጋፊው ${newStatus === "approved" ? "ተተባበረ" : "ተወድቋል"}።`);
+              showToast(
+                `ደጋፊው ${newStatus === "approved" ? "ተተባበረ" : "ተወድቋል"}።`
+              );
             });
           });
 
@@ -345,6 +435,62 @@ function renderBouts(bets) {
             if (!confirm("ይህን ውርርድ ለዘላለም ማጥፋት አለብህ? ይህ ማድረግ አይቻልም።")) return;
             await db.collection("bets").doc(btn.dataset.bet).delete();
             showToast("ውርርድ ተጠፋ።");
+          });
+        });
+
+        boutsEl
+          .querySelectorAll('[data-action="toggle-edit"]')
+          .forEach((btn) => {
+            btn.addEventListener("click", () => {
+              const panel = document.getElementById("edit-" + btn.dataset.bet);
+              panel.style.display =
+                panel.style.display === "none" ? "block" : "none";
+            });
+          });
+
+        boutsEl
+          .querySelectorAll('[data-action="cancel-edit"]')
+          .forEach((btn) => {
+            btn.addEventListener("click", () => {
+              document.getElementById("edit-" + btn.dataset.bet).style.display =
+                "none";
+            });
+          });
+
+        boutsEl.querySelectorAll('[data-action="save-edit"]').forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            const betId = btn.dataset.bet;
+            const panel = document.getElementById("edit-" + betId);
+            const creatorName = panel
+              .querySelector('[data-edit="creatorName"]')
+              .value.trim();
+            const creatorPhone = panel
+              .querySelector('[data-edit="creatorPhone"]')
+              .value.trim();
+            const fighterName = panel
+              .querySelector('[data-edit="fighterName"]')
+              .value.trim();
+            const amount = Number(
+              panel.querySelector('[data-edit="amount"]').value
+            );
+
+            if (!creatorName || !fighterName) {
+              showToast("የፈጣሪ ስም እና የተጫዋች ስም ባዶ መሆን አይችሉም።");
+              return;
+            }
+            if (!amount || amount < MIN_BET) {
+              showToast(`ዝቅተኛው የውርርድ መጠን ${money(MIN_BET)} ነው።`);
+              return;
+            }
+
+            await db.collection("bets").doc(betId).update({
+              creatorName,
+              creatorPhone,
+              fighterName,
+              amount,
+            });
+            showToast("ውርርዱ ተስተካክሏል።");
+            panel.style.display = "none";
           });
         });
 
