@@ -159,6 +159,14 @@
 
     <div class="toast" id="toast"></div>
 
+    <!-- REVIEW STATUS MODAL: shown right after submitting a payment,
+         updates live the instant admin approves/rejects it. -->
+    <div class="modal-backdrop" id="reviewBackdrop">
+      <div class="modal" style="position: relative; text-align: center">
+        <div id="reviewContent"></div>
+      </div>
+    </div>
+
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
     <script src="config.js"></script>
@@ -182,6 +190,79 @@
       document.querySelectorAll("[data-close]").forEach((btn) => {
         btn.addEventListener("click", () => closeModal(btn.dataset.close));
       });
+
+      // ---------- waiting-for-review screen ----------
+      // Opens right after a payment screenshot is submitted (either the
+      // creator's own bet payment, or a challenger backing someone). Listens
+      // live on the bet doc so the moment admin approves/rejects, this
+      // screen updates instantly — no refresh needed.
+      let reviewUnsub = null;
+
+      function renderReviewContent(kind, data) {
+        if (data.status === "approved") {
+          return `
+            <div style="font-size:48px; margin-bottom:12px;">✅</div>
+            <h2 style="color:#4ecb8d;">ጸድቋል!</h2>
+            <p class="sub">${
+              kind === "creator"
+                ? "ውርርድህ አሁን በሰሌዳው ላይ ተለጥፏል።"
+                : "ውርርዱን በተሳካ ሁኔታ ሸፍነሃል።"
+            }</p>
+            <button class="btn btn-primary" id="reviewCloseBtn" style="width:100%; margin-top:10px;">ወደ ሰሌዳ ተመለስ</button>
+          `;
+        }
+        if (data.status === "rejected") {
+          return `
+            <div style="font-size:48px; margin-bottom:12px;">❌</div>
+            <h2 style="color:var(--blood-bright);">ውድቅ ተደርጓል</h2>
+            <p class="sub">የክፍያ ማረጋገጫህ ውድቅ ተደርጓል። ትክክለኛውን ስክሪንሾት ከያዝክ እንደገና ሞክር፣ ወይም አድሚኑን አግኝ።</p>
+            <button class="btn btn-primary" id="reviewCloseBtn" style="width:100%; margin-top:10px;">ዝጋ</button>
+          `;
+        }
+        return `
+          <div class="review-spinner"></div>
+          <h2>ግምገማ በመጠበቅ ላይ...</h2>
+          <p class="sub">አድሚኑ የክፍያ ስክሪንሾትህን በማረጋገጥ ላይ ነው። ይህ ገጽ ራሱ በራሱ ይዘምናል — መጠበቅ ብቻ ነው የሚያስፈልግህ።</p>
+          <button class="btn btn-ghost" id="reviewCloseBtn" style="width:100%; margin-top:10px;">ገጹን ዝጋ (ግምገማው ይቀጥላል)</button>
+        `;
+      }
+
+      function openReviewScreen(betId, kind, challengerId) {
+        openModal("reviewBackdrop");
+        const contentEl = document.getElementById("reviewContent");
+        contentEl.innerHTML = renderReviewContent(kind, { status: "pending" });
+
+        if (reviewUnsub) reviewUnsub();
+        reviewUnsub = db
+          .collection("bets")
+          .doc(betId)
+          .onSnapshot((doc) => {
+            if (!doc.exists) return;
+            const bet = doc.data();
+            let status = "pending";
+            if (kind === "creator") {
+              status = bet.creatorPayment ? bet.creatorPayment.status : "pending";
+            } else {
+              const c = (bet.challengers || []).find(
+                (x) => x.id === challengerId
+              );
+              status = c ? c.status : "pending";
+            }
+            contentEl.innerHTML = renderReviewContent(kind, { status });
+            const closeBtn = document.getElementById("reviewCloseBtn");
+            if (closeBtn) {
+              closeBtn.addEventListener("click", closeReviewScreen);
+            }
+          });
+      }
+
+      function closeReviewScreen() {
+        if (reviewUnsub) {
+          reviewUnsub();
+          reviewUnsub = null;
+        }
+        closeModal("reviewBackdrop");
+      }
 
       // ---------- avatar helper ----------
       // Deterministic color per name + initials, so every person gets a
@@ -455,14 +536,20 @@
       }
 
       function renderBouts(bets) {
-        // Waiting: no opponent locked in yet.
-        // Matched/Settled: an opponent has stepped up (pending or approved),
-        // or the result has already been recorded.
-        const openBets = bets.filter(
+        // Waiting: no opponent locked in yet, and the creator's own payment
+        // has already been approved (so it's a real, live open bet).
+        // Filled: an opponent has stepped up (pending or approved).
+        // Bets still awaiting the CREATOR's own payment approval are
+        // intentionally hidden from both public tabs — they aren't real
+        // yet, and showing them looked like a broken "completed" bet.
+        const visibleBets = bets.filter(
+          (b) => b.status !== "pending_creator_payment"
+        );
+        const openBets = visibleBets.filter(
           (b) => b.status === "open" && !isMatched(b)
         );
-        const filledBets = bets.filter(
-          (b) => b.status !== "open" || isMatched(b)
+        const filledBets = visibleBets.filter(
+          (b) => b.status === "open" && isMatched(b)
         );
 
         document.getElementById("openCount").textContent = openBets.length;
@@ -636,12 +723,12 @@
                 creatorPayment,
               };
 
-              await db.collection("bets").add(betData);
+              const newRef = await db.collection("bets").add(betData);
 
               pendingCreatorBet = null;
               e.target.reset();
               closeModal("payBackdrop");
-              showToast("ውርርድ ተፈጥሯል — አድሚኑ ክፍያህን እስኪያረጋግጥ ጠብቅ።");
+              openReviewScreen(newRef.id, "creator");
             } catch (err) {
               console.error(err);
               showToast("የሆነ ችግር ተፈጥሯል። እንደገና ሞክር።");
@@ -692,7 +779,7 @@
 
             e.target.reset();
             closeModal("payBackdrop");
-            showToast("ገብቷል — አድሚኑ ክፍያህን እስኪያረጋግጥ ጠብቅ።");
+            openReviewScreen(currentBoutForPay.id, "challenger", challenger.id);
           } catch (err) {
             console.error(err);
             showToast("የሆነ ችግር ተፈጥሯል። እንደገና ሞክር።");

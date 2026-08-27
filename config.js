@@ -67,47 +67,24 @@ function buildSeedBets() {
   const placeholderShot =
     "https://placehold.co/500x350?text=Payment+Screenshot";
 
+  // Big enough pool that ~90 name-slots below don't repeat.
   const NAMES = [
-    "Abel",
-    "Mekdes",
-    "Tomas",
-    "Biruk",
-    "Hana",
-    "Kalkidan",
-    "Yonas",
-    "Meron",
-    "Selam",
-    "Dawit",
-    "Ruth",
-    "Nardos",
-    "Bethel",
-    "Kalab",
-    "Naomi",
-    "Samuel",
-    "Sara",
-    "Daniel",
-    "Rahel",
-    "Yosef",
-    "Tigist",
-    "Mikael",
-    "Helen",
-    "Bereket",
-    "Eyerusalem",
-    "Nathnael",
-    "Betelhem",
-    "Amanuel",
-    "Selamawit",
-    "Fikru",
-    "Marta",
-    "Solomon",
-    "Hiwot",
-    "Girma",
-    "Aster",
-    "Tesfaye",
-    "Meskerem",
-    "Wondwosen",
-    "Zeritu",
-    "Alemayehu",
+    "Abel", "Mekdes", "Tomas", "Biruk", "Hana", "Kalkidan", "Yonas", "Meron",
+    "Selam", "Dawit", "Ruth", "Nardos", "Bethel", "Kalab", "Naomi", "Samuel",
+    "Sara", "Daniel", "Rahel", "Yosef", "Tigist", "Mikael", "Helen", "Bereket",
+    "Eyerusalem", "Nathnael", "Betelhem", "Amanuel", "Selamawit", "Fikru",
+    "Marta", "Solomon", "Hiwot", "Girma", "Aster", "Tesfaye", "Meskerem",
+    "Wondwosen", "Zeritu", "Alemayehu", "Elias", "Sosina", "Yordanos", "Wubit",
+    "Getachew", "Almaz", "Tewodros", "Frehiwot", "Zelalem", "Meaza", "Nebiyu",
+    "Senait", "Kidus", "Emebet", "Abiy", "Konjit", "Fasil", "Rediet", "Simret",
+    "Tsegaye", "Lily", "Endale", "Hirut", "Yared", "Bezawit", "Melat",
+    "Kebede", "Genet", "Belay", "Belete", "Selamnesh", "Mulugeta", "Tsehay",
+    "Assefa", "Etenesh", "Berhanu", "Yeshi", "Teklu", "Kifle", "Alemitu",
+    "Dereje", "Yeshiwork", "Abera", "Zewditu", "Hailu", "Roman", "Legesse",
+    "Bezuayehu", "Tekle", "Sinkinesh", "Wolde", "Aynalem", "Fikadu", "Melese",
+    "Tsigereda", "Amsalu", "Birtukan", "Chala", "Desta", "Ephrem", "Fantu",
+    "Girum", "Hilina", "Iskinder", "Kassahun", "Lemlem", "Nigist", "Petros",
+    "Robsan", "Sifen",
   ];
   let nameIdx = 0;
   function nextName() {
@@ -134,35 +111,42 @@ function buildSeedBets() {
     ["Yeamlaksira", "Mesfin"],
   ];
 
-  const examples = [];
   let seed = 0;
 
-  // Insertion order controls display order (later insert = more recent
-  // timestamp = shows first once sorted newest-first). So the "Jhonny
-  // ያሸንፋል" bets go LAST among the open/unmatched group, putting them at
-  // the very top of the Open tab.
-
-  // ---- 3 open bets: creator roots for Jhonny (no backer yet), low stake ----
-  const jhonnyAmounts = [10000, 12000, 15000];
-  jhonnyAmounts.forEach((amount) => {
-    examples.push({
+  // ---- build each fighter-group as its OWN small array first ----
+  function makeGroup(fighterName, amounts) {
+    return amounts.map((amount) => ({
       creatorName: nextName(),
       creatorPhone: fakePhone(seed++),
-      fighterName: "Jhonny",
+      fighterName,
       amount,
       note: "",
       status: "open",
       result: null,
       challengers: [],
-    });
-  });
+    }));
+  }
 
-  // ---- 10 open bets: one per remaining fight-card pairing ----
-  const otherAmounts = [
-    10000, 15000, 20000, 12000, 30000, 10000, 18000, 22000, 10000, 40000,
-  ];
-  OTHER_PAIRS.forEach(([a, b], idx) => {
-    examples.push({
+  // Jhonny-backers ("Sedo ያሸንፋል" opponent label) — 15 bets, similar spread.
+  const jhonnyGroup = makeGroup("Jhonny", [
+    10000, 12000, 15000, 18000, 20000, 25000, 30000, 40000, 50000, 60000,
+    80000, 100000, 130000, 160000, 200000,
+  ]);
+
+  // Sedo-backers ("Jhonny ያሸንፋል" opponent label) — 15 bets, 10k up to 700k,
+  // at least 8 under 80k and 5 at 100k+.
+  const sedoGroup = makeGroup("Sedo", [
+    10000, 15000, 20000, 25000, 35000, 40000, 60000, 75000, // 8 under 80k
+    100000, 150000, 250000, 400000, 700000, // 5 at 100k+
+    18000, 55000, // two more for a round 15
+  ]);
+
+  // One bet per remaining fight-card pairing.
+  const otherGroup = OTHER_PAIRS.map(([a, b], idx) => {
+    const otherAmounts = [
+      10000, 15000, 20000, 12000, 30000, 10000, 18000, 22000, 10000, 40000,
+    ];
+    return {
       creatorName: nextName(),
       creatorPhone: fakePhone(seed++),
       fighterName: idx % 2 === 0 ? a : b,
@@ -171,30 +155,26 @@ function buildSeedBets() {
       status: "open",
       result: null,
       challengers: [],
-    });
+    };
   });
 
-  // ---- 47 open bets: creator roots for Sedo (no backer yet) ----
-  // Inserted last of the open group, so these — the ones showing "Jhonny
-  // ያሸንፋል" — land at the top of the board. Stakes cycle through a varied
-  // 10k–250k spread instead of one repeated number.
-  const sedoStakeCycle = [
-    10000, 12000, 15000, 18000, 20000, 25000, 30000, 40000, 50000, 60000, 80000,
-    100000, 130000, 160000, 200000, 250000,
-  ];
-  const SEDO_OPEN_COUNT = 47;
-  for (let i = 0; i < SEDO_OPEN_COUNT; i++) {
-    examples.push({
-      creatorName: nextName(),
-      creatorPhone: fakePhone(seed++),
-      fighterName: "Sedo",
-      amount: sedoStakeCycle[i % sedoStakeCycle.length],
-      note: "",
-      status: "open",
-      result: null,
-      challengers: [],
-    });
+  // ---- interleave the three groups round-robin so the feed reads as
+  // "Jhonny wins, Sedo wins, another matchup, Jhonny wins, ..." instead of
+  // one long block per fighter. This is the actual insertion order, so the
+  // real (non-shuffled) query order comes out mixed. ----
+  function interleave(groups) {
+    const out = [];
+    const max = Math.max(...groups.map((g) => g.length));
+    for (let i = 0; i < max; i++) {
+      groups.forEach((g) => {
+        if (g[i]) out.push(g[i]);
+      });
+    }
+    return out;
   }
+  const openExamples = interleave([jhonnyGroup, sedoGroup, otherGroup]);
+
+  const examples = [...openExamples];
 
   // ---- 27 already-matched bets: a backer has stepped up and paid, but
   // NO winner recorded — the fight hasn't happened yet. ----
@@ -229,7 +209,7 @@ function buildSeedBets() {
   }
 
   // ---- 1 featured matched bet pinned to the top: 2,000,000 birr,
-  // Janni Gebru vs Jhossy. No result — fight hasn't happened yet. ----
+  // Jani Gebru vs Jossy. No result — fight hasn't happened yet. ----
   examples.push({
     creatorName: "ጃኒ ገብሩ",
     creatorPhone: fakePhone(seed++),
