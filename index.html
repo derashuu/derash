@@ -241,7 +241,9 @@
             const bet = doc.data();
             let status = "pending";
             if (kind === "creator") {
-              status = bet.creatorPayment ? bet.creatorPayment.status : "pending";
+              status = bet.creatorPayment
+                ? bet.creatorPayment.status
+                : "pending";
             } else {
               const c = (bet.challengers || []).find(
                 (x) => x.id === challengerId
